@@ -6,7 +6,7 @@ import org.json.JSONException;
 import org.json.JSONObject;
 import static android.os.SystemClock.sleep;
 
-public class ChopeiraSDK {
+public class Equipment {
 
     private final ConectionTCP conn;
     private int volumeProgramado = 40;
@@ -37,7 +37,7 @@ public class ChopeiraSDK {
 
     private boolean finalizaOp;
 
-    public ChopeiraSDK(String ip) {
+    public Equipment(String ip) {
         if (android.os.Build.VERSION.SDK_INT > 9) {
             StrictMode.ThreadPolicy policy = new StrictMode.ThreadPolicy.Builder().permitAll().build();
             StrictMode.setThreadPolicy(policy);

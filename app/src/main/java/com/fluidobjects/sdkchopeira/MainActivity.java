@@ -11,7 +11,7 @@ import org.json.JSONException;
 
 public class MainActivity extends AppCompatActivity {
 
-    ChopeiraSDK clpManager;
+    Equipment clpManager;
     int volume;
     int fator=5000;
     String ip = "192.168.0.128";
@@ -27,7 +27,9 @@ public class MainActivity extends AppCompatActivity {
     }
 
     public void preparesCLP(View v) throws JSONException {
-        clpManager = new ChopeiraSDK(ip);
+//        DraftTapController x = new DraftTapController("123");
+//        x.openValve();
+        clpManager = new Equipment(ip);
         if (clpManager.open(fator)) { //inicializa os registradores necessários
             volume = 0;
 //            custo = (float) 0.0;
