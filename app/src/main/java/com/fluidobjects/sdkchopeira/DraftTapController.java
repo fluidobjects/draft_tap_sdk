@@ -1,5 +1,8 @@
 package com.fluidobjects.sdkchopeira;
 
+import android.arch.core.util.Function;
+import android.util.Log;
+
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -9,11 +12,12 @@ import java.util.List;
  * Provides functions for manage equipment functionality, logs and keg consume
  */
 public class DraftTapController {
-    public float maxVolume=0;
-    public String ip;
-    public float servingTimeout = 3.0f;
-    public int pulseFactor = 5000;
+    private int maxVolume=0;
+    private String ip;
+    private float servingTimeout = 3.0f;
+    private int pulseFactor = 5000;
     private Equipment equipment;
+    private String TAG = "DraftController";
 
     /**
      * @param ip String of ip adress of equipment for open connection
@@ -28,8 +32,9 @@ public class DraftTapController {
      * @param servingTimeout Float number in milliseconds. The time the valve remains open after the user stops serving.
      * @param pulseFactor Number used to convert pulses to ml(default is 5000).
      */
-    DraftTapController(String ip, float maxVolume, float servingTimeout, int pulseFactor){
+    DraftTapController(String ip, int maxVolume, float servingTimeout, int pulseFactor){
         equipment = new Equipment(ip);
+        equipment.setMaxVol(maxVolume);
         this.ip = ip;
         this.maxVolume = maxVolume;
         this.servingTimeout = servingTimeout;
@@ -44,15 +49,17 @@ public class DraftTapController {
      * @param readVolume Number in ml. Volume served in calibration tests.
      */
     public void calibratePulseFactor(int expectedVolume, int readVolume){
-
+        Log.i(TAG, "Old factor" + String.valueOf(pulseFactor));
+        pulseFactor = (expectedVolume * pulseFactor)/readVolume;
+        Log.i(TAG, "New factor" + String.valueOf(pulseFactor));
     }
 
     public void initializeKeg(float newVolume){
         //currentData
     }
 
-    public float readVolume(){
-        return 0.0f;
+    public int readVolume(){
+        return equipment.getVolume();
     }
 
     public float remainingKegVolume(){
@@ -73,7 +80,18 @@ public class DraftTapController {
      * The valve will close when user stop serving or maxVolume reached
      */
     public boolean openValve(){
-        return false;
+        if(!equipment.open(pulseFactor, maxVolume)){
+            Log.i(TAG, " Falha comunicação CLP");
+            return false;
+        }
+
+        Thread t = new Thread(new Runnable() {
+            public void run() {
+                equipment.monitorsVolume();
+            }
+        });
+        t.start();
+        return true;
     }
 
     /**
@@ -83,9 +101,19 @@ public class DraftTapController {
      * @param maxVolume Number in ml. The maximum volume user is allowed to serve.
      */
     public boolean openValve(int maxVolume){
+        equipment.setMaxVol(maxVolume);
+        Thread t = new Thread(new Runnable() {
+            public void run() {
+                equipment.monitorsVolume();
+            }
+        });
+        t.start();
         return false;
     }
 }
+
+
+
 
 //METHODS
 /**
