@@ -8,11 +8,10 @@ import static android.os.SystemClock.sleep;
 
 public class Equipment {
 
-    private ConectionTCP connection;
+    private ConectionTCP conn;
     private int volumeProgramado;
     private int statusBatelada;
     private int volume;
-    private String ip;
 
     // REGISTRADORES CLP
     private int BATELADA_REG = 3000;
@@ -43,17 +42,16 @@ public class Equipment {
             StrictMode.ThreadPolicy policy = new StrictMode.ThreadPolicy.Builder().permitAll().build();
             StrictMode.setThreadPolicy(policy);
         }
-        this.ip=ip;
         finalizaOp = false;
+        conn = new ConectionTCP(ip, 502);
     }
 
     //É chamado para abrir a batelada
     public boolean open(int fator, int volProgramado) {
-        ConectionTCP conn = new ConectionTCP(ip, 502);
-        conn = new ConectionTCP(ip, 502);
         boolean isConnected = conn.con.isConnected();
-        conn.writeRegisters(STATUS_REG,10);
-        Log.d(TAG, "Abrindo Batelada!"+String.valueOf(isConnected));
+        Log.d(TAG, "Conected?!"+String.valueOf(isConnected));
+//        conn.writeRegisters(STATUS_REG,10);
+        Log.d(TAG, "Abrindo Batelada!");
         int i = conn.readRegister(STATUS_REG);
         boolean aux = (i == 10 || i == 20);
         if (aux) {
@@ -70,7 +68,7 @@ public class Equipment {
     }
 
 
-    public int monitorsVolume(ConectionTCP conn) {
+    public int monitorsVolume() {
         this.statusBatelada = conn.readRegister(BATELADA_REG);
         while(this.statusBatelada != 3){
             int volumeLido = conn.readRegister(VOLUME_REG);
@@ -78,12 +76,13 @@ public class Equipment {
                 volume = volumeLido;
                 Log.d(TAG, "listening - Volume lido: " + volumeLido);
             }
-            sleep(100);
+//            sleep(100);
             this.statusBatelada = conn.readRegister(BATELADA_REG);
         }
         Log.d(TAG, "Encerrou Batelada");
         conn.writeRegisters(BATELADA_REG, 4);
         this.statusBatelada = 4;
+//        conn.closesCon();
         return 1;
     }
 
@@ -98,18 +97,18 @@ public class Equipment {
 //    }
 
     public void setMaxVol(int max){
-        connection.writeRegisters(MAX_VOL_REG, max);
+        conn.writeRegisters(MAX_VOL_REG, max);
         Log.d("maximo", String.valueOf(max));
     }
 
     public void closeCon(){
-        connection.con.isConnected();
-        connection.closesCon();
-        connection.con.isConnected();
+        conn.con.isConnected();
+        conn.closesCon();
+        conn.con.isConnected();
     }
 
     public int getMaxVol(){
-        return connection.readRegister(MAX_VOL_REG);
+        return conn.readRegister(MAX_VOL_REG);
     }
 
     // - - - - - - - - - - OPERADOR - - - - - - - - - - - //

@@ -13,7 +13,7 @@ public class MainActivity extends AppCompatActivity {
 
     int fator = 5000;
     String ip = "192.168.0.128";
-    int volume_aux = 100;
+    int volume_aux = 80;
     int timeout = 1;
     boolean finaliza;
     int volume;
@@ -32,7 +32,7 @@ public class MainActivity extends AppCompatActivity {
     }
 
     public void calibrar(View v){
-        controller.calibratePulseFactor(100,controller.readVolume());
+        controller.calibratePulseFactor(80,85);
     }
 }
 

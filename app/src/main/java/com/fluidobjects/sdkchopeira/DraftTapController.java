@@ -49,7 +49,7 @@ public class DraftTapController {
      * @param readVolume Number in ml. Volume served in calibration tests.
      */
     public void calibratePulseFactor(int expectedVolume, int readVolume){
-        Log.i(TAG, "Old factor" + String.valueOf(pulseFactor));
+        Log.i(TAG, "Old factor" + String.valueOf(pulseFactor)+String.valueOf(readVolume));
         pulseFactor = (expectedVolume * pulseFactor)/readVolume;
         Log.i(TAG, "New factor" + String.valueOf(pulseFactor));
     }
@@ -58,6 +58,11 @@ public class DraftTapController {
         //currentData
     }
 
+    /**
+     * <h2>Read volume</h2>
+     * Read the served volume 
+     * @return false in case of error, true otherwise
+     */
     public int readVolume(){
         return equipment.getVolume();
     }
@@ -77,9 +82,11 @@ public class DraftTapController {
     /**
      * <h2>Open Valve</h2>
      * Open valve so user can start serving before servingTimeout ends.
-     * The valve will close when user stop serving or maxVolume reached
+     * The valve will close when user stop serving or maxVolume reached.
+     * @return false in case of error, true otherwise
      */
     public boolean openValve(){
+        Log.i(TAG, "Factor" + String.valueOf(pulseFactor));
         if(!equipment.open(pulseFactor, maxVolume)){
             Log.i(TAG, " Falha comunicação CLP");
             return false;

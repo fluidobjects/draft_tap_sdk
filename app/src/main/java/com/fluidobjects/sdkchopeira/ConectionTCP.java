@@ -36,7 +36,7 @@ public class ConectionTCP {
         this.port = port;
         con = new TCPMasterConnection(addr);
         con.setPort(port);
-        con.setTimeout(10000);
+        con.setTimeout(5000);
         try {
             con.connect();
         } catch (Exception e) {
@@ -50,17 +50,14 @@ public class ConectionTCP {
     //Escreve um valor em um registrador
     public void writeRegisters(int register, int value){
         try {
-            SimpleRegister reg = null;
-            reg = new SimpleRegister(value);
+            SimpleRegister reg = new SimpleRegister(value);
             WriteSingleRegisterRequest write = new WriteSingleRegisterRequest(register, reg);
             ModbusTCPTransaction transaction = new ModbusTCPTransaction(con);
             transaction.setRequest(write);
             transaction.execute();
-            //con.close();
         }
         catch (Exception ex) {
             ex.printStackTrace();
-            //Log.d("TEST", "Erro no write reg");
         }
 
     }
@@ -73,7 +70,6 @@ public class ConectionTCP {
             request.setUnitID(1);
             ReadMultipleRegistersResponse response = (ReadMultipleRegistersResponse) executeTransaction(con, request);
             valor = response.getRegisterValue(0);
-            //con.close();
             return valor;
         }catch (Exception ex) {
             ex.printStackTrace();
