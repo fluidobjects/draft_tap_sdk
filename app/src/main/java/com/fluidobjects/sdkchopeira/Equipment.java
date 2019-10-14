@@ -17,22 +17,13 @@ public class Equipment {
     private int BATELADA_REG = 3000;
     private int STATUS_REG = 3003;
     private int VOLUME_REG = 3004;
-    private int STATUS_VS_REG = 3005;
+    private int STATUS_VALVULA_REG = 3005;
     private int MAX_VOL_REG = 3007;
     private int VAZAO_REG = 3008;
     private int MULT_FACTOR_REG = 3012;
     private int VOLUME_BARRIL_REG = 3014;
     private int PROBLEMA_VS_REG = 3015;
 
-    private int batelada_valor;
-    private int status_valor;
-    private int volume_valor;
-    private int status_vs_valor;
-    private int max_vol_valor;
-    private int vazao_valor;
-    private int mult_factor_valor;
-    private int volume_barril_valor;
-    private int problema_vs_valor;
     String TAG = "CLP Manager";
 
     private boolean finalizaOp;
@@ -49,7 +40,7 @@ public class Equipment {
     //É chamado para abrir a batelada
     public boolean open(int fator, int volProgramado) {
         boolean isConnected = conn.con.isConnected();
-        Log.d(TAG, "Conected?!"+String.valueOf(isConnected));
+        Log.d(TAG, "Conected?!" + String.valueOf(isConnected));
 //        conn.writeRegisters(STATUS_REG,10);
         Log.d(TAG, "Abrindo Batelada!");
         int i = conn.readRegister(STATUS_REG);
@@ -57,7 +48,6 @@ public class Equipment {
         if (aux) {
             conn.writeRegisters(MULT_FACTOR_REG, fator);
             conn.writeRegisters(MAX_VOL_REG, volProgramado); //seta o volume maximo
-//            conn.writeRegisters(BATELADA_REG, 4);
             conn.writeRegisters(BATELADA_REG, 1); //abre a batelada
             statusBatelada = 1;
             Log.d(TAG, "abriu batelada");
@@ -70,46 +60,42 @@ public class Equipment {
 
     public int monitorsVolume() {
         this.statusBatelada = conn.readRegister(BATELADA_REG);
-        while(this.statusBatelada != 3){
+        while (this.statusBatelada != 3) {
             int volumeLido = conn.readRegister(VOLUME_REG);
-            if (volume < volumeLido){
+            if (volume < volumeLido) {
                 volume = volumeLido;
                 Log.d(TAG, "listening - Volume lido: " + volumeLido);
             }
-//            sleep(100);
+            sleep(100);
             this.statusBatelada = conn.readRegister(BATELADA_REG);
         }
         Log.d(TAG, "Encerrou Batelada");
         conn.writeRegisters(BATELADA_REG, 4);
         this.statusBatelada = 4;
-//        conn.closesCon();
-        return 1;
+        conn.closesCon();
+        return volume;
     }
-
 
     public int getVolume() {
         return volume;
     }
 
-//    public boolean isServing() {
-//        if (statusBatelada == 4) return true;
-//        return false;
-//    }
-
-    public void setMaxVol(int max){
-        conn.writeRegisters(MAX_VOL_REG, max);
-        Log.d("maximo", String.valueOf(max));
+    public boolean isServing() {
+        if (statusBatelada == 4) return true;
+        return false;
     }
 
-    public void closeCon(){
+    public void closeCon() {
         conn.con.isConnected();
         conn.closesCon();
         conn.con.isConnected();
     }
 
-    public int getMaxVol(){
+    public int getMaxVol() {
         return conn.readRegister(MAX_VOL_REG);
     }
+
+}
 
     // - - - - - - - - - - OPERADOR - - - - - - - - - - - //
 //    void openOp() {
@@ -242,4 +228,4 @@ public class Equipment {
 //        this.finalizaOp = status;
 //    }
 
-}
+//}

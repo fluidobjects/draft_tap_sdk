@@ -12,9 +12,7 @@ import java.util.List;
  * Provides functions for manage equipment functionality, logs and keg consume
  */
 public class DraftTapController {
-    private int maxVolume=0;
     private String ip;
-    private float servingTimeout = 3.0f;
     private int pulseFactor = 5000;
     private Equipment equipment;
 
@@ -28,14 +26,11 @@ public class DraftTapController {
 
     /**
      * @param ip String of ip adress of equipment for open connection.
-     * @param servingTimeout Float number in milliseconds. The time the valve remains open after the user stops serving.
      * @param pulseFactor Number used to convert pulses to ml(default is 5000).
      */
-    DraftTapController(String ip, float servingTimeout, int pulseFactor){
+    DraftTapController(String ip, int pulseFactor){
         equipment = new Equipment(ip);
-//        equipment.setMaxVol(maxVolume);
         this.ip = ip;
-        this.servingTimeout = servingTimeout;
         this.pulseFactor = pulseFactor;
     }
 
@@ -47,9 +42,9 @@ public class DraftTapController {
      * @param readVolume Number in ml. Volume served in calibration tests.
      */
     public void calibratePulseFactor(int expectedVolume, int readVolume){
-        print("Old factor" + String.valueOf(pulseFactor));
+        print("Old factor" + pulseFactor);
         pulseFactor = (expectedVolume * pulseFactor)/readVolume;
-        print( "New factor" + String.valueOf(pulseFactor));
+        print( "New factor" + pulseFactor);
     }
 
     /**
@@ -82,32 +77,11 @@ public class DraftTapController {
     /**
      * <h2>Open Valve</h2>
      * Open valve so user can start serving before servingTimeout ends.
-     * The valve will close when user stop serving or maxVolume reached.
-     * @return false in case of error, true otherwise
-     */
-//    public boolean openValve(){
-//        print("Factor" + String.valueOf(pulseFactor));
-//        if(!equipment.open(pulseFactor, maxVolume)){
-//            print(" Falha comunicação CLP");
-//            return false;
-//        }
-//        Thread t = new Thread(new Runnable() {
-//            public void run() {
-//                equipment.monitorsVolume();
-//            }
-//        });
-//        t.start();
-//        return true;
-//    }
-
-    /**
-     * <h2>Open Valve</h2>
-     * Open valve so user can start serving before servingTimeout ends.
      * The valve will close when user stop serving or maxVolume reached
      * @param maxVolume Number in ml. The maximum volume user is allowed to serve.
      */
     public boolean openValve(int maxVolume){
-        print("Factor" + String.valueOf(pulseFactor));
+        print("Serving " + equipment.isServing());
         if(equipment.open(pulseFactor,maxVolume)){
             Thread t = new Thread(new Runnable() {
                 public void run() {
@@ -127,5 +101,26 @@ public class DraftTapController {
 
 //    public void initializeKeg(float newVolume){
 //        //currentData
+//    }
+
+    /**
+     * <h2>Open Valve</h2>
+     * Open valve so user can start serving before servingTimeout ends.
+     * The valve will close when user stop serving or maxVolume reached.
+     * @return false in case of error, true otherwise
+     */
+//    public boolean openValve(){
+//        print("Factor" + String.valueOf(pulseFactor));
+//        if(!equipment.open(pulseFactor, maxVolume)){
+//            print(" Falha comunicação CLP");
+//            return false;
+//        }
+//        Thread t = new Thread(new Runnable() {
+//            public void run() {
+//                equipment.monitorsVolume();
+//            }
+//        });
+//        t.start();
+//        return true;
 //    }
 }

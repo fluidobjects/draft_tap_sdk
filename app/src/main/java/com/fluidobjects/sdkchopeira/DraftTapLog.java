@@ -59,6 +59,8 @@ public class DraftTapLog extends SQLiteOpenHelper implements BaseColumns{
 //    }
 
     public static void criaBancos(Context context) {
+//        Date date = new Date(System.currentTimeMillis());
+//        date.setTime(date.getTime());
         SQLiteDatabase db = DraftTapLog.getsInstance(context).getWritableDatabase();
         db.execSQL("CREATE TABLE IF NOT EXISTS equipments(" +
                 "id INTEGER PRIMARY KEY AUTOINCREMENT," +
