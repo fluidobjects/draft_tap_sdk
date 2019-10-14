@@ -17,26 +17,24 @@ public class DraftTapController {
     private float servingTimeout = 3.0f;
     private int pulseFactor = 5000;
     private Equipment equipment;
-    private String TAG = "DraftController";
 
     /**
      * @param ip String of ip adress of equipment for open connection
      */
     DraftTapController(String ip){
         this.ip = ip;
+        equipment = new Equipment(ip);
     }
 
     /**
      * @param ip String of ip adress of equipment for open connection.
-     * @param maxVolume Number in ml. The maximum volume user is allowed to serve.
      * @param servingTimeout Float number in milliseconds. The time the valve remains open after the user stops serving.
      * @param pulseFactor Number used to convert pulses to ml(default is 5000).
      */
-    DraftTapController(String ip, int maxVolume, float servingTimeout, int pulseFactor){
+    DraftTapController(String ip, float servingTimeout, int pulseFactor){
         equipment = new Equipment(ip);
-        equipment.setMaxVol(maxVolume);
+//        equipment.setMaxVol(maxVolume);
         this.ip = ip;
-        this.maxVolume = maxVolume;
         this.servingTimeout = servingTimeout;
         this.pulseFactor = pulseFactor;
     }
@@ -49,13 +47,9 @@ public class DraftTapController {
      * @param readVolume Number in ml. Volume served in calibration tests.
      */
     public void calibratePulseFactor(int expectedVolume, int readVolume){
-        Log.i(TAG, "Old factor" + String.valueOf(pulseFactor)+String.valueOf(readVolume));
+        print("Old factor" + String.valueOf(pulseFactor));
         pulseFactor = (expectedVolume * pulseFactor)/readVolume;
-        Log.i(TAG, "New factor" + String.valueOf(pulseFactor));
-    }
-
-    public void initializeKeg(float newVolume){
-        //currentData
+        print( "New factor" + String.valueOf(pulseFactor));
     }
 
     /**
@@ -71,10 +65,16 @@ public class DraftTapController {
         return 0.0f;
     }
 
+    /**
+     * @return List of all saved log objects.
+     */
     public List<DraftTapLog> getLogs(){
         return new ArrayList<DraftTapLog>(0);
     }
 
+    /**
+     * @return List of log objects between startDate and endDate
+     */
     public List<DraftTapLog> getLogs(Date startDate, Date endDate){
         return new ArrayList<DraftTapLog>(0);
     }
@@ -85,21 +85,20 @@ public class DraftTapController {
      * The valve will close when user stop serving or maxVolume reached.
      * @return false in case of error, true otherwise
      */
-    public boolean openValve(){
-        Log.i(TAG, "Factor" + String.valueOf(pulseFactor));
-        if(!equipment.open(pulseFactor, maxVolume)){
-            Log.i(TAG, " Falha comunicação CLP");
-            return false;
-        }
-
-        Thread t = new Thread(new Runnable() {
-            public void run() {
-                equipment.monitorsVolume();
-            }
-        });
-        t.start();
-        return true;
-    }
+//    public boolean openValve(){
+//        print("Factor" + String.valueOf(pulseFactor));
+//        if(!equipment.open(pulseFactor, maxVolume)){
+//            print(" Falha comunicação CLP");
+//            return false;
+//        }
+//        Thread t = new Thread(new Runnable() {
+//            public void run() {
+//                equipment.monitorsVolume();
+//            }
+//        });
+//        t.start();
+//        return true;
+//    }
 
     /**
      * <h2>Open Valve</h2>
@@ -108,40 +107,25 @@ public class DraftTapController {
      * @param maxVolume Number in ml. The maximum volume user is allowed to serve.
      */
     public boolean openValve(int maxVolume){
-        equipment.setMaxVol(maxVolume);
-        Thread t = new Thread(new Runnable() {
-            public void run() {
-                equipment.monitorsVolume();
-            }
-        });
-        t.start();
+        print("Factor" + String.valueOf(pulseFactor));
+        if(equipment.open(pulseFactor,maxVolume)){
+            Thread t = new Thread(new Runnable() {
+                public void run() {
+                    equipment.monitorsVolume();
+                }
+            });
+            t.start();
+            return true;
+        }
+        print("Falha comunicação com Equipamento");
         return false;
     }
+
+    private void print(String text){
+        Log.d("DraftController", text);
+    }
+
+//    public void initializeKeg(float newVolume){
+//        //currentData
+//    }
 }
-
-
-
-
-//METHODS
-/**
- * This is the main method which makes use of addNum method.
- * @param args Unused.
- * @return Nothing.
- * @exception IOException On input error.
- * @see IOException
- */
-
-//CLASSES
-/**
- * <h1>Add Two Numbers!</h1>
- * The AddNum program implements an application that
- * simply adds two given integer numbers and Prints
- * the output on the screen.
- * <p>
- * <b>Note:</b> Giving proper comments in your program makes it more
- * user friendly and it is assumed as a high quality code.
- *
- * @author  Zara Ali
- * @version 1.0
- * @since   2014-03-31
- */
