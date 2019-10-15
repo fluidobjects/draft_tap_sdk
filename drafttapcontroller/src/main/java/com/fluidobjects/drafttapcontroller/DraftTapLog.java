@@ -26,11 +26,11 @@ public class DraftTapLog extends SQLiteOpenHelper implements BaseColumns{
     /**
      * <h2>Save log data in database</h2>
      */
-    public void save(){
+    void save(){
 
     }
 
-    public static ArrayList<DraftTapLog> getLogs(Date startDate, Date endDate){
+    static ArrayList<DraftTapLog> getLogs(Date startDate, Date endDate){
         ArrayList<DraftTapLog> arr = new ArrayList<DraftTapLog>();
 
         return arr;
@@ -46,7 +46,7 @@ public class DraftTapLog extends SQLiteOpenHelper implements BaseColumns{
         onCreate(db);
     }
 
-    public static void createDatabase(Context context) {
+    static void createDatabase(Context context) {
         Date date = new Date(System.currentTimeMillis());
         date.setTime(date.getTime());
         Long.parseLong(String.valueOf(date.getTime()));
@@ -58,7 +58,7 @@ public class DraftTapLog extends SQLiteOpenHelper implements BaseColumns{
         );
     }
 
-    public static synchronized DraftTapLog getsInstance(Context context) {
+    static synchronized DraftTapLog getsInstance(Context context) {
         // Use the application context, which will ensure that you
         // don't accidentally leak an Activity's context.
         // See this article for more information: http://bit.ly/6LRzfx
@@ -71,7 +71,7 @@ public class DraftTapLog extends SQLiteOpenHelper implements BaseColumns{
     /**
      * <h2>Save log data in database</h2>
      */
-    public static long save(Context context,LogObj log){
+    static long save(Context context,LogObj log){
         SQLiteDatabase db = DraftTapLog.getsInstance(context).getWritableDatabase();
         final String TABLE_NAME = "logs";
         long insert = -1;
@@ -84,7 +84,7 @@ public class DraftTapLog extends SQLiteOpenHelper implements BaseColumns{
         return insert;
     }
 
-    public static ArrayList<LogObj> getLogs(Context context,long timeBegin, long timeEnd){
+    static ArrayList<LogObj> getLogs(Context context,long timeBegin, long timeEnd){
         SQLiteDatabase db = DraftTapLog.getsInstance(context).getWritableDatabase();
         String query;
         if(timeBegin !=0 && timeEnd!=0)
@@ -106,23 +106,5 @@ public class DraftTapLog extends SQLiteOpenHelper implements BaseColumns{
         else return null;
         db.close();
         return logs;
-    }
-}
-
-/**
- * <h2>Equipment log object</h2>
- * Object saved in database
- */
-class LogObj{
-    Date date;
-    int servedVolume;
-    int pulseFactor;
-    int remainingKegVolume;
-
-    LogObj(Date date, int servedVolume, int pulseFactor, int remainingKegVolume){
-        this.date = date;
-        this.servedVolume = servedVolume;
-        this.pulseFactor = pulseFactor;
-        this.remainingKegVolume = remainingKegVolume;
     }
 }

@@ -5,7 +5,7 @@ import android.util.Log;
 
 import static android.os.SystemClock.sleep;
 
-public class Equipment {
+class Equipment {
 
     private ConectionTCP conn;
     private int volumeProgramado;
@@ -27,7 +27,7 @@ public class Equipment {
 
     private boolean finalizaOp;
 
-    public Equipment(String ip) {
+    Equipment(String ip) {
         if (android.os.Build.VERSION.SDK_INT > 9) {
             StrictMode.ThreadPolicy policy = new StrictMode.ThreadPolicy.Builder().permitAll().build();
             StrictMode.setThreadPolicy(policy);
@@ -37,7 +37,7 @@ public class Equipment {
     }
 
     //É chamado para abrir a batelada
-    public boolean open(int fator, int volProgramado) {
+    boolean open(int fator, int volProgramado) {
         boolean isConnected = conn.con.isConnected();
         Log.d(TAG, "Conected?!" + String.valueOf(isConnected));
 //        conn.writeRegisters(STATUS_REG,10);
@@ -57,7 +57,7 @@ public class Equipment {
     }
 
 
-    public int monitorsVolume() {
+    int monitorsVolume() {
         this.statusBatelada = conn.readRegister(BATELADA_REG);
         while (this.statusBatelada != 3) {
             int volumeLido = conn.readRegister(VOLUME_REG);
@@ -75,22 +75,22 @@ public class Equipment {
         return volume;
     }
 
-    public int getVolume() {
+    int getVolume() {
         return volume;
     }
 
-    public boolean isServing() {
+    boolean isServing() {
         if (statusBatelada == 4) return true;
         return false;
     }
 
-    public void closeCon() {
+    void closeCon() {
         conn.con.isConnected();
         conn.closesCon();
         conn.con.isConnected();
     }
 
-    public int getMaxVol() {
+    int getMaxVol() {
         return conn.readRegister(MAX_VOL_REG);
     }
 

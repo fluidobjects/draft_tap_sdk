@@ -19,7 +19,7 @@ public class DraftTapController {
     /**
      * @param ip String of ip adress of equipment for open connection
      */
-    DraftTapController(Context context, String ip){
+    public DraftTapController(Context context, String ip){
         this.ip = ip;
         equipment = new Equipment(ip);
         this.context = context;
@@ -30,7 +30,7 @@ public class DraftTapController {
      * @param ip String of ip adress of equipment for open connection.
      * @param pulseFactor Number used to convert pulses to ml(default is 5000).
      */
-    DraftTapController(Context context, String ip, int pulseFactor){
+    public DraftTapController(Context context, String ip, int pulseFactor){
         equipment = new Equipment(ip);
         this.ip = ip;
         this.pulseFactor = pulseFactor;

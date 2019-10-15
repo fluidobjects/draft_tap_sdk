@@ -15,7 +15,7 @@ import net.wimpi.modbus.procimg.SimpleRegister;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
 
-public class ConectionTCP {
+class ConectionTCP {
 
     TCPMasterConnection con; //the connection
     /* Variables for storing the parameters */
@@ -24,7 +24,7 @@ public class ConectionTCP {
 
 
 
-    public ConectionTCP(String ip, int port){
+    ConectionTCP(String ip, int port){
         con = null;
         try {
             this.addr = InetAddress.getByName(ip);
@@ -46,7 +46,7 @@ public class ConectionTCP {
     //Using jamod lib
 
     //Escreve um valor em um registrador
-    public void writeRegisters(int register, int value){
+    void writeRegisters(int register, int value){
         try {
             SimpleRegister reg = new SimpleRegister(value);
             WriteSingleRegisterRequest write = new WriteSingleRegisterRequest(register, reg);
@@ -61,7 +61,7 @@ public class ConectionTCP {
     }
 
     //Le o valor de um registrador
-    public int readRegister(int register){
+    int readRegister(int register){
         int valor = 0;
         try {
             ReadMultipleRegistersRequest request = new ReadMultipleRegistersRequest(register, 1);
@@ -85,7 +85,7 @@ public class ConectionTCP {
         return transaction.getResponse();
     }
 
-    public void closesCon()
+    void closesCon()
     {
         con.close();
     }

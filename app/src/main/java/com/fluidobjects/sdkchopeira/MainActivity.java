@@ -9,11 +9,12 @@ import android.view.View;
 import android.widget.EditText;
 import android.widget.Toast;
 
+import com.fluidobjects.drafttapcontroller.DraftTapController;
+import com.fluidobjects.drafttapcontroller.LogObj;
+
 import org.json.JSONException;
 
 public class MainActivity extends AppCompatActivity {
-
-
     int initialFator = 5000;
     String ip = "192.168.0.128";
     DraftTapController chopeira;

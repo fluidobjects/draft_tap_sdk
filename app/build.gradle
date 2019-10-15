@@ -29,4 +29,5 @@ dependencies {
     androidTestImplementation 'com.android.support.test.espresso:espresso-core:3.0.2'
     implementation 'net.wimpi:jamod:1.2'
     implementation 'com.ghgande:j2mod:2.3.6'
+    implementation project(":drafttapcontroller")
 }
