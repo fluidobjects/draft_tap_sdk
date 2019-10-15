@@ -1,6 +1,7 @@
 package com.fluidobjects.sdkchopeira;
 
 import android.arch.core.util.Function;
+import android.content.Context;
 import android.util.Log;
 
 import java.util.ArrayList;
@@ -15,23 +16,28 @@ public class DraftTapController {
     private String ip;
     private int pulseFactor = 5000;
     private Equipment equipment;
+    private Context context;
 
     /**
      * @param ip String of ip adress of equipment for open connection
      */
-    DraftTapController(String ip){
+    DraftTapController(Context context, String ip){
         this.ip = ip;
         equipment = new Equipment(ip);
+        this.context = context;
+        DraftTapLog.createDatabase(context);
     }
 
     /**
      * @param ip String of ip adress of equipment for open connection.
      * @param pulseFactor Number used to convert pulses to ml(default is 5000).
      */
-    DraftTapController(String ip, int pulseFactor){
+    DraftTapController(Context context, String ip, int pulseFactor){
         equipment = new Equipment(ip);
         this.ip = ip;
         this.pulseFactor = pulseFactor;
+        this.context = context;
+        DraftTapLog.createDatabase(context);
     }
 
     /**
@@ -63,15 +69,15 @@ public class DraftTapController {
     /**
      * @return List of all saved log objects.
      */
-    public List<DraftTapLog> getLogs(){
-        return new ArrayList<DraftTapLog>(0);
+    public List<LogObj> getLogs(){
+        return DraftTapLog.getLogs(context,0,0);
     }
 
     /**
      * @return List of log objects between startDate and endDate
      */
-    public List<DraftTapLog> getLogs(Date startDate, Date endDate){
-        return new ArrayList<DraftTapLog>(0);
+    public List<LogObj> getLogs(Date startDate, Date endDate){
+        return DraftTapLog.getLogs(context,startDate.getTime(),endDate.getTime());
     }
 
     /**
@@ -83,6 +89,7 @@ public class DraftTapController {
     public boolean openValve(int maxVolume){
         print("Serving " + equipment.isServing());
         if(equipment.open(pulseFactor,maxVolume)){
+            DraftTapLog.save(context,new LogObj(new Date(),maxVolume,pulseFactor,0));
             Thread t = new Thread(new Runnable() {
                 public void run() {
                     equipment.monitorsVolume();

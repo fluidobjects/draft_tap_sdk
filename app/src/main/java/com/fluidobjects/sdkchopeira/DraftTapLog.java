@@ -1,6 +1,8 @@
 package com.fluidobjects.sdkchopeira;
 
 import java.util.Date;
+
+import android.content.ContentValues;
 import android.content.Context;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
@@ -15,17 +17,9 @@ import java.util.Date;
  * Provides functions for manage equipment logs
  */
 public class DraftTapLog extends SQLiteOpenHelper implements BaseColumns{
-    Date date;
-    int servedVolume;
-    int pulseFactor;
-    int remainingKegVolume;
-    private static final String DB_NAME = "";
-    private static final String TABLE_NAME = "";
-    private static DraftTapLog sInstance;
 
-    DraftTapLog(Context context,  Date date, int servedVolume, int pulseFactor, int remainingKegVolume){
-        super(context, DB_NAME, null, 1);
-    }
+    private static final String DB_NAME = "DraftTapLog";
+    private static DraftTapLog sInstance;
 
     private DraftTapLog(Context context){
         super(context, DB_NAME, null, 1);
@@ -50,31 +44,19 @@ public class DraftTapLog extends SQLiteOpenHelper implements BaseColumns{
 
     @Override
     public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
-        db.execSQL("DROP TABLE IF EXISTS TABLE_NAME");
+        db.execSQL("DROP TABLE IF EXISTS logs");
         onCreate(db);
     }
 
-//    public MyDBhelper(Context context){
-//        super(context, DB_NAME, null, 1);
-//    }
-
-    public static void criaBancos(Context context) {
-//        Date date = new Date(System.currentTimeMillis());
-//        date.setTime(date.getTime());
+    public static void createDatabase(Context context) {
+        Date date = new Date(System.currentTimeMillis());
+        date.setTime(date.getTime());
+        Long.parseLong(String.valueOf(date.getTime()));
         SQLiteDatabase db = DraftTapLog.getsInstance(context).getWritableDatabase();
-        db.execSQL("CREATE TABLE IF NOT EXISTS equipments(" +
-                "id INTEGER PRIMARY KEY AUTOINCREMENT," +
-                "name TEXT," +
-                "serial TEXT," +
-                "size TEXT," +
-                "current_temperature INTEGER," +
-                "programmed_temperature INTEGER," +
-                "associated BOOLEAN," +
-                "isOn BOOLEAN," +
-                "connected BOOLEAN," +
-                "ip STRING," +
-                "device_id STRING," +
-                "operating BOOLEAN);"
+        db.execSQL("CREATE TABLE IF NOT EXISTS logs(" +
+                "data INTEGER PRIMARY KEY," +
+                "servedVolume INTEGER," +
+                "pulseFactor INTEGER);"
         );
     }
 
@@ -88,45 +70,61 @@ public class DraftTapLog extends SQLiteOpenHelper implements BaseColumns{
         return sInstance;
     }
 
-    public static long InsertLogs(Context context,ArrayList<DraftTapLog> logs, long lastLogTime){
+    /**
+     * <h2>Save log data in database</h2>
+     */
+    public static long save(Context context,LogObj log){
         SQLiteDatabase db = DraftTapLog.getsInstance(context).getWritableDatabase();
         final String TABLE_NAME = "logs";
         long insert = -1;
-        for(DraftTapLog log : logs) {
-//            if( log.getDate().getTime() > lastLogTime) {
-//                ContentValues logValues = new ContentValues();
-//                logValues.put("id", log.getId());
-//                logValues.put("currentTemp", log.getCurrentTemp());
-//                logValues.put("programedTemp", log.getProgrammedTemp());
-//                logValues.put("heaterOn", log.getHeaterOn());
-//                logValues.put("time", log.getDate().getTime());
-//                insert = db.insert(TABLE_NAME, null, logValues);
-//            }
-        }
+        ContentValues logValues = new ContentValues();
+        logValues.put("data", log.date.getTime());
+        logValues.put("servedVolume", log.servedVolume);
+        logValues.put("pulseFactor", log.pulseFactor);
+        insert = db.insert(TABLE_NAME, null, logValues);
         db.close();
         return insert;
     }
 
-    public static ArrayList<DraftTapLog> returnLogs(Context context, int id){
+    public static ArrayList<LogObj> getLogs(Context context,long timeBegin, long timeEnd){
         SQLiteDatabase db = DraftTapLog.getsInstance(context).getWritableDatabase();
-        String query = "SELECT * FROM logs WHERE id="+id+";";
+        String query;
+        if(timeBegin !=0 && timeEnd!=0)
+            query = "SELECT * FROM logs WHERE data BETWEEN timeBegin and timeEnd";
+        else query = "SELECT * FROM logs";
+
         Cursor cursor      = db.rawQuery(query, null);
-        ArrayList<DraftTapLog> logs = new ArrayList<DraftTapLog>();
+        ArrayList<LogObj> logs = new ArrayList<LogObj>();
         if(cursor.moveToFirst()){
             do{
-                int programedTemp= cursor.getInt(cursor.getColumnIndex("programedTemp"));
-                int currentTemp =cursor.getInt(cursor.getColumnIndex("currentTemp"));
-                Boolean heaterOn= cursor.getInt(cursor.getColumnIndex("heaterOn")) > 0;
-                long time=cursor.getLong(cursor.getColumnIndex("time"));
+                int servedVolume =cursor.getInt(cursor.getColumnIndex("servedVolume"));
+                int pulseFactor= cursor.getInt(cursor.getColumnIndex("pulseFactor"));
+                long time=cursor.getLong(cursor.getColumnIndex("data"));
                 Date date = new Date(time);
-//                DraftTapLog log = new DraftTapLog(id,date,heaterOn,currentTemp,programedTemp);
-//                logs.add(log);
+                LogObj log = new LogObj(date,servedVolume,pulseFactor,0);
+                logs.add(log);
             }while(!cursor.isLast()&& cursor.moveToNext());
         }
         else return null;
         db.close();
         return logs;
     }
+}
 
+/**
+ * <h2>Equipment log object</h2>
+ * Object saved in database
+ */
+class LogObj{
+    Date date;
+    int servedVolume;
+    int pulseFactor;
+    int remainingKegVolume;
 
+    LogObj(Date date, int servedVolume, int pulseFactor, int remainingKegVolume){
+        this.date = date;
+        this.servedVolume = servedVolume;
+        this.pulseFactor = pulseFactor;
+        this.remainingKegVolume = remainingKegVolume;
+    }
 }

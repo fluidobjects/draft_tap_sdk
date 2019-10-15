@@ -16,7 +16,6 @@ public class MainActivity extends AppCompatActivity {
 
     int initialFator = 5000;
     String ip = "192.168.0.128";
-    String TAG = "Cerveja Activity";
     DraftTapController chopeira;
 
     @Override
@@ -24,7 +23,7 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         this.setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
-        chopeira = new DraftTapController(ip, initialFator);
+        chopeira = new DraftTapController(getApplicationContext() ,ip, initialFator);
     }
 
     public void servir(View v) {
@@ -33,7 +32,7 @@ public class MainActivity extends AppCompatActivity {
         try {
             volumeProgramado = Integer.valueOf(vol.getText().toString());
         }catch (Exception e){
-            Log.d(TAG, e.getMessage());
+            print(e.getMessage());
         }
 
         if(volumeProgramado != 0){
@@ -50,11 +49,20 @@ public class MainActivity extends AppCompatActivity {
             volumeProgramado = Integer.valueOf(vol.getText().toString());
             volumeServido = Integer.valueOf(medido.getText().toString());
         }catch (Exception e){
-            Log.d(TAG, e.getMessage());
+            print(e.getMessage());
         }
         if(volumeProgramado != 0 && volumeServido != 0){
             chopeira.calibratePulseFactor(volumeProgramado, volumeServido);
         }
     }
 
+    public void teste(View v){
+        for (LogObj l: chopeira.getLogs()) {
+            print("Log: " + l.servedVolume);
+        }
+    }
+
+    private void print(String text){
+        Log.d("Main Activity", text);
+    }
 }
