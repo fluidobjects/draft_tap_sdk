@@ -1,2 +1,2 @@
-include ':app'
+include ':app', ':drafttapcontroller'
 rootProject.name='SDK Chopeira'
