@@ -65,7 +65,7 @@ class Equipment {
                 volume = volumeLido;
                 Log.d(TAG, "listening - Volume lido: " + volumeLido);
             }
-            sleep(100);
+//            sleep(100);
             this.statusBatelada = conn.readRegister(BATELADA_REG);
         }
         Log.d(TAG, "Encerrou Batelada");

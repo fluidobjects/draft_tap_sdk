@@ -1,5 +1,6 @@
 package com.fluidobjects.sdkchopeira;
 
+import android.content.Intent;
 import android.content.pm.ActivityInfo;
 import android.os.Bundle;
 import android.os.Handler;
@@ -10,6 +11,7 @@ import android.widget.EditText;
 import android.widget.Toast;
 
 import com.fluidobjects.drafttapcontroller.DraftTapController;
+import com.fluidobjects.drafttapcontroller.DraftTapLog;
 import com.fluidobjects.drafttapcontroller.LogObj;
 
 import org.json.JSONException;
@@ -58,9 +60,11 @@ public class MainActivity extends AppCompatActivity {
     }
 
     public void teste(View v){
-        for (LogObj l: chopeira.getLogs()) {
-            print("Log: " + l.servedVolume);
-        }
+//        for (LogObj l: chopeira.getLogs()) {
+//            print("Log: " + l.servedVolume);
+//        }
+        Intent intent = new Intent(this, Logs.class);
+        startActivity(intent);
     }
 
     private void print(String text){
