@@ -26,7 +26,7 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         this.setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
-        chopeira = new DraftTapController(getApplicationContext() ,ip, initialFator);
+//        chopeira = new DraftTapController(getApplicationContext() ,ip, initialFator);
     }
 
     public void servir(View v) {
@@ -60,11 +60,7 @@ public class MainActivity extends AppCompatActivity {
     }
 
     public void teste(View v){
-//        for (LogObj l: chopeira.getLogs()) {
-//            print("Log: " + l.servedVolume);
-//        }
-        Intent intent = new Intent(this, Logs.class);
-        startActivity(intent);
+        startActivity(new Intent(this, Logs.class));
     }
 
     private void print(String text){

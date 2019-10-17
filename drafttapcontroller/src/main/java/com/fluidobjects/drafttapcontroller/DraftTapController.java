@@ -3,6 +3,7 @@ package com.fluidobjects.drafttapcontroller;
 import android.content.Context;
 import android.util.Log;
 
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
@@ -67,14 +68,14 @@ public class DraftTapController {
     /**
      * @return List of all saved log objects.
      */
-    public List<LogObj> getLogs(){
+    public ArrayList<LogObj> getLogs(){
         return DraftTapLog.getLogs(context,0,0);
     }
 
     /**
      * @return List of log objects between startDate and endDate
      */
-    public List<LogObj> getLogs(Date startDate, Date endDate){
+    public ArrayList<LogObj> getLogs(Date startDate, Date endDate){
         return DraftTapLog.getLogs(context,startDate.getTime(),endDate.getTime());
     }
 

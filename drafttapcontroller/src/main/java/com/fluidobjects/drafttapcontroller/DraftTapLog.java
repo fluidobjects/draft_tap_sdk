@@ -30,12 +30,6 @@ public class DraftTapLog extends SQLiteOpenHelper implements BaseColumns{
 
     }
 
-    static ArrayList<DraftTapLog> getLogs(Date startDate, Date endDate){
-        ArrayList<DraftTapLog> arr = new ArrayList<DraftTapLog>();
-
-        return arr;
-    }
-
     @Override
     public void onCreate(SQLiteDatabase db) {
     }
@@ -88,7 +82,7 @@ public class DraftTapLog extends SQLiteOpenHelper implements BaseColumns{
         SQLiteDatabase db = DraftTapLog.getsInstance(context).getWritableDatabase();
         String query;
         if(timeBegin !=0 && timeEnd!=0)
-            query = "SELECT * FROM logs WHERE data BETWEEN timeBegin and timeEnd";
+            query = "SELECT * FROM logs WHERE data BETWEEN "+timeBegin +" AND "+timeEnd;
         else query = "SELECT * FROM logs";
 
         Cursor cursor      = db.rawQuery(query, null);
@@ -103,7 +97,6 @@ public class DraftTapLog extends SQLiteOpenHelper implements BaseColumns{
                 logs.add(log);
             }while(!cursor.isLast()&& cursor.moveToNext());
         }
-        else return null;
         db.close();
         return logs;
     }
