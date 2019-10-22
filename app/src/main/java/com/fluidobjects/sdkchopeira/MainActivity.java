@@ -26,7 +26,12 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         this.setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
-//        chopeira = new DraftTapController(getApplicationContext() ,ip, initialFator);
+        try {
+            chopeira = new DraftTapController(getApplicationContext() ,ip, initialFator);
+        }catch (Exception e){
+            print(e.getMessage());
+        }
+
     }
 
     public void servir(View v) {
@@ -39,7 +44,11 @@ public class MainActivity extends AppCompatActivity {
         }
 
         if(volumeProgramado != 0){
-            chopeira.openValve(volumeProgramado);
+            try {
+                chopeira.openValve(volumeProgramado);
+            }catch (Exception e){
+                print(e.getMessage());
+            }
         }
     }
 
@@ -52,7 +61,7 @@ public class MainActivity extends AppCompatActivity {
             volumeProgramado = Integer.valueOf(vol.getText().toString());
             volumeServido = Integer.valueOf(medido.getText().toString());
         }catch (Exception e){
-            print(e.getMessage());
+//            print(e.getMessage());
         }
         if(volumeProgramado != 0 && volumeServido != 0){
             chopeira.calibratePulseFactor(volumeProgramado, volumeServido);
@@ -64,6 +73,6 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void print(String text){
-        Log.d("Main Activity", text);
+        Log.d("Main Activity", text + "\n");
     }
 }

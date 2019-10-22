@@ -24,55 +24,35 @@ class ConectionTCP {
 
 
 
-    ConectionTCP(String ip, int port){
+    ConectionTCP(String ip, int port)throws Exception{
         con = null;
-        try {
-            this.addr = InetAddress.getByName(ip);
-        } catch (UnknownHostException e) {
-            e.printStackTrace();
-        }
+        this.addr = InetAddress.getByName(ip);
         this.port = port;
         con = new TCPMasterConnection(addr);
         con.setPort(port);
         con.setTimeout(5000);
-        try {
-            con.connect();
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-
+        con.connect();
     }
 
     //Using jamod lib
 
     //Escreve um valor em um registrador
-    void writeRegisters(int register, int value){
-        try {
-            SimpleRegister reg = new SimpleRegister(value);
-            WriteSingleRegisterRequest write = new WriteSingleRegisterRequest(register, reg);
-            ModbusTCPTransaction transaction = new ModbusTCPTransaction(con);
-            transaction.setRequest(write);
-            transaction.execute();
-        }
-        catch (Exception ex) {
-            ex.printStackTrace();
-        }
-
+    void writeRegisters(int register, int value)throws Exception{
+        SimpleRegister reg = new SimpleRegister(value);
+        WriteSingleRegisterRequest write = new WriteSingleRegisterRequest(register, reg);
+        ModbusTCPTransaction transaction = new ModbusTCPTransaction(con);
+        transaction.setRequest(write);
+        transaction.execute();
     }
 
     //Le o valor de um registrador
-    int readRegister(int register){
+    int readRegister(int register)throws Exception{
         int valor = 0;
-        try {
-            ReadMultipleRegistersRequest request = new ReadMultipleRegistersRequest(register, 1);
-            request.setUnitID(1);
-            ReadMultipleRegistersResponse response = (ReadMultipleRegistersResponse) executeTransaction(con, request);
-            valor = response.getRegisterValue(0);
-            return valor;
-        }catch (Exception ex) {
-            ex.printStackTrace();
-            return -1;
-        }
+        ReadMultipleRegistersRequest request = new ReadMultipleRegistersRequest(register, 1);
+        request.setUnitID(1);
+        ReadMultipleRegistersResponse response = (ReadMultipleRegistersResponse) executeTransaction(con, request);
+        valor = response.getRegisterValue(0);
+        return valor;
     }
 
     //Executa a transacao e recebe a resposta
@@ -85,11 +65,5 @@ class ConectionTCP {
         return transaction.getResponse();
     }
 
-    void closesCon()
-    {
-        con.close();
-    }
-
-
-
+    void closesCon(){con.close();}
 }

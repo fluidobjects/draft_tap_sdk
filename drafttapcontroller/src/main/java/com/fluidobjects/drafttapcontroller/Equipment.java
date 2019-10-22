@@ -27,27 +27,42 @@ class Equipment {
 
     private boolean finalizaOp;
 
-    Equipment(String ip) {
+    Equipment(String ip)throws Exception{
         if (android.os.Build.VERSION.SDK_INT > 9) {
             StrictMode.ThreadPolicy policy = new StrictMode.ThreadPolicy.Builder().permitAll().build();
             StrictMode.setThreadPolicy(policy);
         }
         finalizaOp = false;
-        conn = new ConectionTCP(ip, 502);
+        try{
+            conn = new ConectionTCP(ip, 502);
+        }catch (Exception e){
+            throw new Exception("Could not open connection with device ip: "+ip);
+        }
+
     }
 
     //É chamado para abrir a batelada
-    boolean open(int fator, int volProgramado) {
+    boolean open(int fator, int volProgramado) throws Exception{
         boolean isConnected = conn.con.isConnected();
         Log.d(TAG, "Conected?!" + String.valueOf(isConnected));
 //        conn.writeRegisters(STATUS_REG,10);
         Log.d(TAG, "Abrindo Batelada!");
-        int i = conn.readRegister(STATUS_REG);
-        boolean aux = (i == 10 || i == 20);
+        int status = 0;
+        try{
+            status = conn.readRegister(STATUS_REG);
+        }catch (Exception e){
+            throw new Exception("Could not read status register of the equipment");
+        }
+
+        boolean aux = (status == 10 || status == 20);
         if (aux) {
-            conn.writeRegisters(MULT_FACTOR_REG, fator);
-            conn.writeRegisters(MAX_VOL_REG, volProgramado); //seta o volume maximo
-            conn.writeRegisters(BATELADA_REG, 1); //abre a batelada
+            try{
+                conn.writeRegisters(MULT_FACTOR_REG, fator);
+                conn.writeRegisters(MAX_VOL_REG, volProgramado); //seta o volume maximo
+                conn.writeRegisters(BATELADA_REG, 1); //abre a batelada
+            }catch (Exception e){
+                throw new Exception("Could not write registers of the equipment");
+            }
             statusBatelada = 1;
             Log.d(TAG, "abriu batelada");
             volume = 0;
@@ -57,19 +72,35 @@ class Equipment {
     }
 
 
-    int monitorsVolume() {
-        this.statusBatelada = conn.readRegister(BATELADA_REG);
+    int monitorsVolume() throws Exception{
+        try{
+            this.statusBatelada = conn.readRegister(BATELADA_REG);
+        }catch (Exception e){
+            throw new Exception("Could not read valve status register");
+        }
         while (this.statusBatelada != 3) {
-            int volumeLido = conn.readRegister(VOLUME_REG);
+            int volumeLido = 0;
+            try{
+                volumeLido = conn.readRegister(VOLUME_REG);
+            }catch (Exception e){
+                throw new Exception("Could not read volume register");
+            }
             if (volume < volumeLido) {
                 volume = volumeLido;
                 Log.d(TAG, "listening - Volume lido: " + volumeLido);
             }
-//            sleep(100);
-            this.statusBatelada = conn.readRegister(BATELADA_REG);
+            try{
+                this.statusBatelada = conn.readRegister(BATELADA_REG);
+            }catch (Exception e){
+                throw new Exception("Could not read valve status register");
+            }
         }
         Log.d(TAG, "Encerrou Batelada");
-        conn.writeRegisters(BATELADA_REG, 4);
+        try{
+            conn.writeRegisters(BATELADA_REG, 4);
+        }catch (Exception e){
+            throw new Exception("Could not write valve status register");
+        }
         this.statusBatelada = 4;
         conn.closesCon();
         return volume;
@@ -90,8 +121,12 @@ class Equipment {
         conn.con.isConnected();
     }
 
-    int getMaxVol() {
-        return conn.readRegister(MAX_VOL_REG);
+    int getMaxVol()throws Exception{
+        try{
+            return conn.readRegister(MAX_VOL_REG);
+        }catch (Exception e){
+            throw new Exception("Could not read maximum volume register of the equipment");
+        }
     }
 
 }

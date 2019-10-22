@@ -18,25 +18,27 @@ public class DraftTapController {
     private Context context;
 
     /**
-     * @param ip String of ip adress of equipment for open connection
+     * @param ip String of ip adress of equipment for open connection.
+     * @param context Context of the running Activity.
      */
-    public DraftTapController(Context context, String ip){
-        this.ip = ip;
-        equipment = new Equipment(ip);
-        this.context = context;
-        DraftTapLog.createDatabase(context);
+    public DraftTapController(Context context, String ip)throws Exception{
+            equipment = new Equipment(ip);
+            this.ip = ip;
+            this.context = context;
+            DraftTapLog.createDatabase(context);
     }
 
     /**
+     * @param context Context of the running Activity.
      * @param ip String of ip adress of equipment for open connection.
      * @param pulseFactor Number used to convert pulses to ml(default is 5000).
      */
-    public DraftTapController(Context context, String ip, int pulseFactor){
-        equipment = new Equipment(ip);
-        this.ip = ip;
-        this.pulseFactor = pulseFactor;
-        this.context = context;
-        DraftTapLog.createDatabase(context);
+    public DraftTapController(Context context, String ip, int pulseFactor)throws Exception{
+            equipment = new Equipment(ip);
+            this.ip = ip;
+            this.pulseFactor = pulseFactor;
+            this.context = context;
+            DraftTapLog.createDatabase(context);
     }
 
     /**
@@ -47,9 +49,9 @@ public class DraftTapController {
      * @param readVolume Number in ml. Volume served in calibration tests.
      */
     public void calibratePulseFactor(int expectedVolume, int readVolume){
-        print("Old factor" + pulseFactor);
+        print("Old factor " + pulseFactor);
         pulseFactor = (expectedVolume * pulseFactor)/readVolume;
-        print( "New factor" + pulseFactor);
+        print( "New factor " + pulseFactor);
     }
 
     /**
@@ -80,34 +82,39 @@ public class DraftTapController {
     }
 
     /**
+     * @param context Context of the running Activity
+     * @return List of all saved log objects.
+     */
+    public static ArrayList<LogObj> getLogs(Context context){
+        return DraftTapLog.getLogs(context,0,0);
+    }
+
+    /**
+     * @param context Context of the running Activity
+     * @return List of log objects between startDate and endDate
+     */
+    public static ArrayList<LogObj> getLogs(Context context, Date startDate, Date endDate){
+        return DraftTapLog.getLogs(context,startDate.getTime(),endDate.getTime());
+    }
+
+    /**
      * <h2>Open Valve</h2>
      * Open valve so user can start serving before servingTimeout ends.
      * The valve will close when user stop serving or maxVolume reached
      * @param maxVolume Number in ml. The maximum volume user is allowed to serve.
      */
-    public boolean openValve(int maxVolume){
-        print("Serving " + equipment.isServing());
-        if(equipment.open(pulseFactor,maxVolume)){
-            DraftTapLog.save(context,new LogObj(new Date(),maxVolume,pulseFactor,0));
-            Thread t = new Thread(new Runnable() {
-                public void run() {
-                    equipment.monitorsVolume();
-                }
-            });
-            t.start();
-            return true;
-        }
-        print("Falha comunicação com Equipamento");
-        return false;
+    public void openValve(int maxVolume)throws Exception{
+            print("Serving " + equipment.isServing());
+            if(equipment.open(pulseFactor,maxVolume)){
+                DraftTapLog.save(context,new LogObj(new Date(),maxVolume,pulseFactor,0));
+                equipment.monitorsVolume();
+            } else throw new Exception("Failed opening Equipment");
     }
 
     private void print(String text){
-        Log.d("DraftController", text);
+        Log.d("DraftController", text + "\n");
     }
 
-//    public void initializeKeg(float newVolume){
-//        //currentData
-//    }
 
     /**
      * <h2>Open Valve</h2>

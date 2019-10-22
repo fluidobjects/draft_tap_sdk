@@ -2,6 +2,7 @@ package com.fluidobjects.sdkchopeira;
 
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.View;
 import android.widget.EditText;
 import android.widget.ScrollView;
@@ -28,7 +29,6 @@ public class Logs extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_logs);
-        chopeira = new DraftTapController(getApplicationContext() ,ip, initialFator);
     }
 
     public void pesquisar(View v){
@@ -39,10 +39,9 @@ public class Logs extends AppCompatActivity {
         try {
             Date date1 = dateFormat.parse(inicio.getText().toString());
             Date date2 = dateFormat.parse(fim.getText().toString());
-            logs = chopeira.getLogs(date1,date2);
+            logs = DraftTapController.getLogs(getApplicationContext(), date1,date2);
         } catch (ParseException e) {
-//            e.printStackTrace();
-            logs = chopeira.getLogs();
+            logs = DraftTapController.getLogs(getApplicationContext());
         }
         TableLayout tl = findViewById(R.id.tabela);
         tl.removeAllViews();
@@ -50,7 +49,6 @@ public class Logs extends AppCompatActivity {
         tl.setColumnStretchable(1, true);
         tl.setColumnStretchable(2, true);
         for (LogObj l: logs) {
-
             TableRow tr = new TableRow(this);
             TextView sv = new TextView(this);
             sv.setText(String.valueOf(l.servedVolume));
