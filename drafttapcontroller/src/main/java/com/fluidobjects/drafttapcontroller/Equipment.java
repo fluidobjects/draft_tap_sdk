@@ -35,6 +35,8 @@ class Equipment {
         finalizaOp = false;
         try{
             conn = new ConectionTCP(ip, 502);
+            if(conn.readRegister(BATELADA_REG)==3)
+                conn.writeRegisters(BATELADA_REG, 4);
         }catch (Exception e){
             throw new Exception("Could not open connection with device ip: "+ip);
         }

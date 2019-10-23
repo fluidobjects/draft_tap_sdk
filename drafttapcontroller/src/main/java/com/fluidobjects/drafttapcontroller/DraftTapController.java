@@ -1,6 +1,7 @@
 package com.fluidobjects.drafttapcontroller;
 
 import android.content.Context;
+import android.content.SharedPreferences;
 import android.util.Log;
 
 import java.util.ArrayList;
@@ -16,16 +17,21 @@ public class DraftTapController {
     private int pulseFactor = 5000;
     private Equipment equipment;
     private Context context;
+    private int lastVolumeRead=0;
+    private int cutVolume=0;
 
     /**
      * @param ip String of ip adress of equipment for open connection.
      * @param context Context of the running Activity.
      */
     public DraftTapController(Context context, String ip)throws Exception{
-            equipment = new Equipment(ip);
-            this.ip = ip;
-            this.context = context;
-            DraftTapLog.createDatabase(context);
+        equipment = new Equipment(ip);
+        this.ip = ip;
+        this.context = context;
+        DraftTapLog.createDatabase(context);
+        SharedPreferences sharedPreferences = context.getSharedPreferences("sharedPrefs", Context.MODE_PRIVATE);
+        pulseFactor = sharedPreferences.getInt("pulseFactor",pulseFactor);
+        cutVolume = sharedPreferences.getInt("cutVolume",cutVolume);
     }
 
     /**
@@ -33,24 +39,27 @@ public class DraftTapController {
      * @param ip String of ip adress of equipment for open connection.
      * @param pulseFactor Number used to convert pulses to ml(default is 5000).
      */
-    public DraftTapController(Context context, String ip, int pulseFactor)throws Exception{
-            equipment = new Equipment(ip);
-            this.ip = ip;
-            this.pulseFactor = pulseFactor;
-            this.context = context;
-            DraftTapLog.createDatabase(context);
-    }
+//    public DraftTapController(Context context, String ip, int pulseFactor)throws Exception{
+//            equipment = new Equipment(ip);
+//            this.ip = ip;
+//            this.pulseFactor = pulseFactor;
+//            this.context = context;
+//            DraftTapLog.createDatabase(context);
+//    }
 
     /**
      * Use the readVolume and expected volume to recalculate pulseFactor.
      * Should be used when the measurement of volume served is wrong.
      *
-     * @param expectedVolume Number in ml. Volume wanted to serve. Usually the maxVolume in calibration tests.
      * @param readVolume Number in ml. Volume served in calibration tests.
      */
-    public void calibratePulseFactor(int expectedVolume, int readVolume){
+    public void calibratePulseFactor(int readVolume){
         print("Old factor " + pulseFactor);
-        pulseFactor = (expectedVolume * pulseFactor)/readVolume;
+        pulseFactor = (lastVolumeRead * pulseFactor) / readVolume;
+        SharedPreferences sharedPreferences = context.getSharedPreferences("sharedPrefs", Context.MODE_PRIVATE);
+        SharedPreferences.Editor editor = sharedPreferences.edit();
+        editor.putInt("pulseFactor", pulseFactor);
+        editor.apply();
         print( "New factor " + pulseFactor);
     }
 
@@ -104,11 +113,15 @@ public class DraftTapController {
      * @param maxVolume Number in ml. The maximum volume user is allowed to serve.
      */
     public void openValve(int maxVolume)throws Exception{
-            print("Serving " + equipment.isServing());
-            if(equipment.open(pulseFactor,maxVolume)){
-                DraftTapLog.save(context,new LogObj(new Date(),maxVolume,pulseFactor,0));
-                equipment.monitorsVolume();
-            } else throw new Exception("Failed opening Equipment");
+        print("Serving " + equipment.isServing());
+        if(equipment.open(pulseFactor,maxVolume-cutVolume)){
+            DraftTapLog.save(context,new LogObj(new Date(),maxVolume,pulseFactor,0));
+            lastVolumeRead = equipment.monitorsVolume();
+            cutVolume = lastVolumeRead-maxVolume;
+            SharedPreferences.Editor editor = context.getSharedPreferences("sharedPrefs", Context.MODE_PRIVATE).edit();
+            editor.putInt("cutVolume", cutVolume);
+            editor.apply();
+        } else throw new Exception("Failed opening Equipment");
     }
 
     private void print(String text){

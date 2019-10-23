@@ -17,7 +17,6 @@ import com.fluidobjects.drafttapcontroller.LogObj;
 import org.json.JSONException;
 
 public class MainActivity extends AppCompatActivity {
-    int initialFator = 5000;
     String ip = "192.168.0.128";
     DraftTapController chopeira;
 
@@ -27,7 +26,7 @@ public class MainActivity extends AppCompatActivity {
         setContentView(R.layout.activity_main);
         this.setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
         try {
-            chopeira = new DraftTapController(getApplicationContext() ,ip, initialFator);
+            chopeira = new DraftTapController(getApplicationContext() ,ip);
         }catch (Exception e){
             print(e.getMessage());
         }
@@ -55,16 +54,13 @@ public class MainActivity extends AppCompatActivity {
     public void calibrar(View v) {
         EditText vol = findViewById(R.id.volume);
         EditText medido = findViewById(R.id.medido);
-        int volumeProgramado = 0;
         int volumeServido = 0;
         try {
-            volumeProgramado = Integer.valueOf(vol.getText().toString());
             volumeServido = Integer.valueOf(medido.getText().toString());
         }catch (Exception e){
-//            print(e.getMessage());
         }
-        if(volumeProgramado != 0 && volumeServido != 0){
-            chopeira.calibratePulseFactor(volumeProgramado, volumeServido);
+        if(volumeServido != 0){
+            chopeira.calibratePulseFactor(volumeServido);
         }
     }
 
