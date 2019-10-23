@@ -44,7 +44,7 @@ public class MainActivity extends AppCompatActivity {
 
         if(volumeProgramado != 0){
             try {
-                chopeira.openValve(volumeProgramado);
+                chopeira.openValve(volumeProgramado,true);
             }catch (Exception e){
                 print(e.getMessage());
             }
