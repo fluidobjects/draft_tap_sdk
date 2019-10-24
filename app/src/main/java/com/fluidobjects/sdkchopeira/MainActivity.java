@@ -16,6 +16,9 @@ import com.fluidobjects.drafttapcontroller.LogObj;
 
 import org.json.JSONException;
 
+import java.net.InetAddress;
+import java.net.NetworkInterface;
+
 public class MainActivity extends AppCompatActivity {
     String ip = "192.168.0.128";
     DraftTapController chopeira;
@@ -25,6 +28,7 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         this.setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
+
         try {
             chopeira = new DraftTapController(getApplicationContext() ,ip);
         }catch (Exception e){
@@ -52,7 +56,6 @@ public class MainActivity extends AppCompatActivity {
     }
 
     public void calibrar(View v) {
-        EditText vol = findViewById(R.id.volume);
         EditText medido = findViewById(R.id.medido);
         int volumeServido = 0;
         try {

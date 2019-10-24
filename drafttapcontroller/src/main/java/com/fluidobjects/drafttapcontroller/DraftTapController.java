@@ -1,12 +1,12 @@
 package com.fluidobjects.drafttapcontroller;
 
+
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.util.Log;
 
 import java.util.ArrayList;
 import java.util.Date;
-import java.util.List;
 
 /**
  * <h2>Controls Draft Tap Equipment</h2>
@@ -28,6 +28,7 @@ public class DraftTapController {
         equipment = new Equipment(ip);
         this.ip = ip;
         this.context = context;
+        equipment.request(context,ip);
         DraftTapLog.createDatabase(context);
         SharedPreferences sharedPreferences = context.getSharedPreferences("sharedPrefs", Context.MODE_PRIVATE);
         pulseFactor = sharedPreferences.getInt("pulseFactor", pulseFactor);
@@ -115,7 +116,7 @@ public class DraftTapController {
         } else throw new Exception("Failed opening Equipment");
     }
 
-    private void print(String text) {
+    private static void print(String text){
         Log.d("DraftController", text + "\n");
     }
 }

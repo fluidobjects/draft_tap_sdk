@@ -1,7 +1,23 @@
 package com.fluidobjects.drafttapcontroller;
 
+import android.content.Context;
 import android.os.StrictMode;
 import android.util.Log;
+
+import com.android.volley.RequestQueue;
+import com.android.volley.Response;
+import com.android.volley.VolleyError;
+import com.android.volley.toolbox.JsonObjectRequest;
+import com.android.volley.toolbox.Volley;
+
+import org.json.JSONException;
+import org.json.JSONObject;
+
+import java.io.BufferedReader;
+import java.io.FileReader;
+import java.io.IOException;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import static android.os.SystemClock.sleep;
 
@@ -128,4 +144,62 @@ class Equipment {
             throw new Exception("Could not read maximum volume register of the equipment");
         }
     }
+
+    private static String getMacFromArp(String ip) throws IOException {
+        String MAC_RE = "^%s\\s+0x1\\s+0x2\\s+([:0-9a-fA-F]+)\\s+\\*\\s+\\w+$";
+        int BUF = 8 * 1024;
+        String hw = "00:00:00:00:00:00";
+        BufferedReader bufferedReader = null;
+        try {
+            if (ip != null) {
+                String ptrn = String.format(MAC_RE, ip.replace(".", "\\."));
+                Pattern pattern = Pattern.compile(ptrn);
+                bufferedReader = new BufferedReader(new FileReader("/proc/net/arp"), BUF);
+                String line;
+                Matcher matcher;
+                while ((line = bufferedReader.readLine()) != null) {
+                    matcher = pattern.matcher(line);
+                    if (matcher.matches()) {
+                        hw = matcher.group(1);
+                        break;
+                    }
+                }
+            }
+        } catch (IOException e) {
+            return hw;
+        } finally {
+            try {
+                if(bufferedReader != null) {
+                    bufferedReader.close();
+                }
+            } catch (IOException e) {
+            }
+        }
+        return hw;
+    }
+
+    public static void request(Context context, String ip){
+        RequestQueue queue = Volley.newRequestQueue(context);
+        JsonObjectRequest request = new JsonObjectRequest("https://fcc-weather-api.glitch.me/api/current?lat=35&lon=139", null,
+                new Response.Listener<JSONObject>(){
+                    @Override
+                    public void onResponse(JSONObject response) {
+                        if (null != response) {
+                            try {
+                                Log.d("JSON", response.toString());
+                            } catch (Exception e) {
+                                e.printStackTrace();
+                            }
+                        }
+                    }
+                }, new Response.ErrorListener() {
+
+            @Override
+            public void onErrorResponse(VolleyError error) {
+
+            }
+        });
+        queue.add(request);
+    }
+
 }
