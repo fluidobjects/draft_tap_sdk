@@ -2,6 +2,7 @@ package com.fluidobjects.sdkchopeira;
 
 import android.content.Intent;
 import android.content.pm.ActivityInfo;
+import android.media.audiofx.DynamicsProcessing;
 import android.os.Bundle;
 import android.os.Handler;
 import android.support.v7.app.AppCompatActivity;
@@ -49,6 +50,7 @@ public class MainActivity extends AppCompatActivity {
         if(volumeProgramado != 0){
             try {
                 chopeira.openValve(volumeProgramado,true);
+
             }catch (Exception e){
                 print(e.getMessage());
             }

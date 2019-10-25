@@ -1,15 +1,21 @@
 package com.fluidobjects.drafttapcontroller;
 
 import android.content.Context;
+import android.content.SharedPreferences;
 import android.os.StrictMode;
 import android.util.Log;
 
+import com.android.volley.NetworkResponse;
+import com.android.volley.Request;
 import com.android.volley.RequestQueue;
 import com.android.volley.Response;
 import com.android.volley.VolleyError;
+import com.android.volley.toolbox.JsonArrayRequest;
 import com.android.volley.toolbox.JsonObjectRequest;
+import com.android.volley.toolbox.StringRequest;
 import com.android.volley.toolbox.Volley;
 
+import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -145,7 +151,7 @@ class Equipment {
         }
     }
 
-    private static String getMacFromArp(String ip) throws IOException {
+    public static String getMacFromArp(String ip) throws IOException {
         String MAC_RE = "^%s\\s+0x1\\s+0x2\\s+([:0-9a-fA-F]+)\\s+\\*\\s+\\w+$";
         int BUF = 8 * 1024;
         String hw = "00:00:00:00:00:00";
@@ -178,25 +184,40 @@ class Equipment {
         return hw;
     }
 
-    public static void request(Context context, String ip){
+    public static void request(final Context context, final String ip){
         RequestQueue queue = Volley.newRequestQueue(context);
-        JsonObjectRequest request = new JsonObjectRequest("https://fcc-weather-api.glitch.me/api/current?lat=35&lon=139", null,
-                new Response.Listener<JSONObject>(){
+        StringRequest request = new StringRequest(Request.Method.GET, "http://chopeira.staging.fluidobjects.com/get_chopeiras",
+                new Response.Listener<String>() {
                     @Override
-                    public void onResponse(JSONObject response) {
-                        if (null != response) {
-                            try {
-                                Log.d("JSON", response.toString());
-                            } catch (Exception e) {
-                                e.printStackTrace();
+                    public void onResponse(String response){
+                        try {
+                            JSONArray jsonarray = new JSONArray(response);
+                            String macEquip = getMacFromArp(ip);
+                            for(int i=0; i < jsonarray.length(); i++) {
+                                JSONObject jsonobject = jsonarray.getJSONObject(i);
+                                String mac       = jsonobject.getString("mac");
+                                String enabled    = jsonobject.getString("enabled");
+                                if(mac.contains(macEquip)) {
+                                    if (enabled.contains("0")){
+                                        SharedPreferences.Editor editor= context.getSharedPreferences("sharedPrefs", Context.MODE_PRIVATE).edit();
+                                        editor.putString("disabled",macEquip);
+                                        editor.apply();
+                                    }
+                                    else {
+                                        SharedPreferences.Editor editor= context.getSharedPreferences("sharedPrefs", Context.MODE_PRIVATE).edit();
+                                        editor.putString("disabled","");
+                                        editor.apply();
+                                    }
+                                }
                             }
+                        }catch (Exception e){
+                            Log.d("Volley Request",e.getMessage());
                         }
                     }
                 }, new Response.ErrorListener() {
-
             @Override
             public void onErrorResponse(VolleyError error) {
-
+                Log.d("Volley Request","Erro comunicacao");
             }
         });
         queue.add(request);

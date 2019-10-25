@@ -5,6 +5,7 @@ import android.content.Context;
 import android.content.SharedPreferences;
 import android.util.Log;
 
+import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Date;
 
@@ -12,13 +13,14 @@ import java.util.Date;
  * <h2>Controls Draft Tap Equipment</h2>
  * Provides functions for manage equipment functionality, logs and keg consume
  */
-public class DraftTapController {
+public class DraftTapController{
     private String ip;
     private int pulseFactor = 5000;
     private Equipment equipment;
     private Context context;
     private int lastVolumeRead = 0;
     private int cutVolume = 0;
+    private  boolean enabled = true;
 
     /**
      * @param ip      String of ip adress of equipment for open connection.
@@ -28,11 +30,13 @@ public class DraftTapController {
         equipment = new Equipment(ip);
         this.ip = ip;
         this.context = context;
-        equipment.request(context,ip);
-        DraftTapLog.createDatabase(context);
-        SharedPreferences sharedPreferences = context.getSharedPreferences("sharedPrefs", Context.MODE_PRIVATE);
-        pulseFactor = sharedPreferences.getInt("pulseFactor", pulseFactor);
-        cutVolume = sharedPreferences.getInt("cutVolume", cutVolume);
+        verifyEquip();
+        if(enabled) {
+            DraftTapLog.createDatabase(context);
+            SharedPreferences sharedPreferences = context.getSharedPreferences("sharedPrefs", Context.MODE_PRIVATE);
+            pulseFactor = sharedPreferences.getInt("pulseFactor", pulseFactor);
+            cutVolume = sharedPreferences.getInt("cutVolume", cutVolume);
+        }else throw new Exception("Could not open connection with device ip: "+ip);
     }
 
     /**
@@ -103,6 +107,7 @@ public class DraftTapController {
      * @param maxVolume Number in ml. The maximum volume user is allowed to serve.
      */
     public void openValve(int maxVolume, boolean isCalibrating) throws Exception {
+        verifyEquip();
         print("Serving " + equipment.isServing());
         if (equipment.open(pulseFactor, isCalibrating ? maxVolume : maxVolume - cutVolume)) {
             DraftTapLog.save(context, new LogObj(new Date(), maxVolume, pulseFactor, 0));
@@ -118,5 +123,27 @@ public class DraftTapController {
 
     private static void print(String text){
         Log.d("DraftController", text + "\n");
+    }
+
+    private void equipIsEnabled(){
+        try {
+            String mac = equipment.getMacFromArp(ip);
+            SharedPreferences sharedPreferences = context.getSharedPreferences("sharedPrefs", Context.MODE_PRIVATE);
+            String dis = sharedPreferences.getString("disabled", "");
+            if(dis.contains(mac)) enabled = false;
+            enabled = true;
+        }catch (Exception e){enabled = true; }
+    }
+
+    private void verifyEquip(){
+        equipIsEnabled();
+        SharedPreferences sharedPreferences = context.getSharedPreferences("sharedPrefs", Context.MODE_PRIVATE);
+        long timeLastVerify = sharedPreferences.getLong("timeLastVerify", 0);
+        if((new Date()).getTime() - timeLastVerify > 86400000 || !enabled){//mais de 1 dia
+            SharedPreferences.Editor editor=sharedPreferences.edit();
+            editor.putLong("timeLastVerify", (new Date()).getTime());
+            editor.apply();
+            Equipment.request(context,ip);
+        }
     }
 }
