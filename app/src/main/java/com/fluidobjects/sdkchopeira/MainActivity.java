@@ -57,6 +57,29 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
+    public void servir100(View v) {
+        try {
+            chopeira.openValve(100,false);
+        }catch (Exception e){
+            print(e.getMessage());
+        }
+    }
+    public void servir250(View v) {
+        try {
+            chopeira.openValve(250,false);
+        }catch (Exception e){
+            print(e.getMessage());
+        }
+    }
+
+    public void servir450(View v) {
+        try {
+            chopeira.openValve(450,false);
+        }catch (Exception e){
+            print(e.getMessage());
+        }
+    }
+
     public void calibrar(View v) {
         EditText medido = findViewById(R.id.medido);
         int volumeServido = 0;
