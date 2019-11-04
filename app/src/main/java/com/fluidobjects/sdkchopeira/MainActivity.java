@@ -49,7 +49,7 @@ public class MainActivity extends AppCompatActivity {
 
         if(volumeProgramado != 0){
             try {
-                chopeira.openValve(volumeProgramado,true);
+                chopeira.openValve(volumeProgramado);
 
             }catch (Exception e){
                 print(e.getMessage());
@@ -59,14 +59,14 @@ public class MainActivity extends AppCompatActivity {
 
     public void servir100(View v) {
         try {
-            chopeira.openValve(100,false);
+            chopeira.openValve(100);
         }catch (Exception e){
             print(e.getMessage());
         }
     }
     public void servir250(View v) {
         try {
-            chopeira.openValve(250,false);
+            chopeira.openValve(250);
         }catch (Exception e){
             print(e.getMessage());
         }
@@ -74,7 +74,7 @@ public class MainActivity extends AppCompatActivity {
 
     public void servir450(View v) {
         try {
-            chopeira.openValve(450,false);
+            chopeira.openValve(450);
         }catch (Exception e){
             print(e.getMessage());
         }
