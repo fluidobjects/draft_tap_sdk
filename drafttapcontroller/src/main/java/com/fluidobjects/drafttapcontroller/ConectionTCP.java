@@ -39,11 +39,20 @@ class ConectionTCP {
 
     //Escreve um valor em um registrador
     void writeRegisters(int register, int value)throws Exception{
-        SimpleRegister reg = new SimpleRegister(value);
-        WriteSingleRegisterRequest write = new WriteSingleRegisterRequest(register, reg);
-        ModbusTCPTransaction transaction = new ModbusTCPTransaction(con);
-        transaction.setRequest(write);
-        transaction.execute();
+        try{
+            SimpleRegister reg = new SimpleRegister(value);
+            WriteSingleRegisterRequest write = new WriteSingleRegisterRequest(register, reg);
+            ModbusTCPTransaction transaction = new ModbusTCPTransaction(con);
+            transaction.setRequest(write);
+            transaction.execute();
+        }catch (Exception e){
+            con.close();
+            con = new TCPMasterConnection(addr);
+            con.setPort(port);
+            con.setTimeout(5000);
+            con.connect();
+            writeRegisters(register,value);
+        }
     }
 
     //Le o valor de um registrador
@@ -51,8 +60,17 @@ class ConectionTCP {
         int valor = 0;
         ReadMultipleRegistersRequest request = new ReadMultipleRegistersRequest(register, 1);
         request.setUnitID(1);
-        ReadMultipleRegistersResponse response = (ReadMultipleRegistersResponse) executeTransaction(con, request);
-        valor = response.getRegisterValue(0);
+        try{
+            ReadMultipleRegistersResponse response = (ReadMultipleRegistersResponse) executeTransaction(con, request);
+            valor = response.getRegisterValue(0);
+        }catch (Exception e){
+            con.close();
+            con = new TCPMasterConnection(addr);
+            con.setPort(port);
+            con.setTimeout(5000);
+            con.connect();
+            return readRegister(register);
+        }
         return valor;
     }
 

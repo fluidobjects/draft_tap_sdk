@@ -43,7 +43,9 @@ class Equipment {
     private int VAZAO_REG = 3008;
     private int MULT_FACTOR_REG = 3012;
     private int VOLUME_BARRIL_REG = 3014;
-    private int PROBLEMA_VS_REG = 3015;
+    private int TIMEOUT_GERAL = 3015; //15000
+    private int TIMEOUT_INTERMEDIARIO = 3016; //5000
+    private int AJUSTE_PULSOS = 3017; //8
 
     String TAG = "CLP Manager";
 
@@ -59,10 +61,10 @@ class Equipment {
             conn = new ConectionTCP(ip, 502);
             if(conn.readRegister(BATELADA_REG)==3)
                 conn.writeRegisters(BATELADA_REG, 4);
+            conn.writeRegisters(AJUSTE_PULSOS, 0);
         }catch (Exception e){
             throw new Exception("Could not open connection with device ip: "+ip);
         }
-
     }
 
     //É chamado para abrir a batelada
@@ -71,11 +73,12 @@ class Equipment {
         Log.d(TAG, "Abrindo Batelada!" + "Conected?!" + isConnected);
         int status = 0;
         try{
+            if(conn.readRegister(BATELADA_REG)==3)
+                conn.writeRegisters(BATELADA_REG, 4);
             status = conn.readRegister(STATUS_REG);
         }catch (Exception e){
             throw new Exception("Could not read status register of the equipment");
         }
-
         boolean aux = (status == 10 || status == 20);
         if (aux) {
             try{
