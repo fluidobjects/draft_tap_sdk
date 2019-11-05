@@ -27,9 +27,7 @@ dependencies {
     testImplementation 'junit:junit:4.12'
     androidTestImplementation 'com.android.support.test:runner:1.0.2'
     androidTestImplementation 'com.android.support.test.espresso:espresso-core:3.0.2'
-    implementation 'net.wimpi:jamod:1.2'
-    implementation 'com.ghgande:j2mod:2.3.6'
-    implementation project(":drafttapcontroller")
-//    implementation 'com.github.fluidobjects:draft_tap_sdk:Tag'
+//    implementation project(":drafttapcontroller")
+    implementation 'com.github.fluidobjects:draft_tap_sdk:0.3'
 //    implementation 'com.github.fluidobjects:draft_tap_sdk:-9de83d5505-1'
 }
