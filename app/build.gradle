@@ -31,4 +31,5 @@ dependencies {
     implementation 'com.ghgande:j2mod:2.3.6'
     implementation project(":drafttapcontroller")
 //    implementation 'com.github.fluidobjects:draft_tap_sdk:Tag'
+//    implementation 'com.github.fluidobjects:draft_tap_sdk:-9de83d5505-1'
 }

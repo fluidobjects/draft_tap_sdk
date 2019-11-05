@@ -11,7 +11,7 @@ import java.util.Date;
 
 /**
  * <h2>Controls Draft Tap Equipment</h2>
- * Provides functions for manage equipment functionality, logs and keg consume
+ * Provides functions for manage equipment functionality and logs
  */
 public class DraftTapController{
     private String ip;
@@ -21,40 +21,38 @@ public class DraftTapController{
     private int lastVolumeRead = 0;
     private int cutVolume = 13;
     private  boolean enabled = true;
+    public  boolean isServing = false;
 
     /**
-     * @param ip      String of ip adress of equipment for open connection.
+     * <h2>DraftTapController</h2>
+     * @param ip      String of ip address of equipment for open connection.
      * @param context Context of the running Activity.
      */
     public DraftTapController(Context context, String ip) throws Exception {
         equipment = new Equipment(ip);
         this.ip = ip;
         this.context = context;
-//        verifyEquip();
-//        if(enabled) {
-            DraftTapLog.createDatabase(context);
-            SharedPreferences sharedPreferences = context.getSharedPreferences("sharedPrefs", Context.MODE_PRIVATE);
-            pulseFactor = sharedPreferences.getInt("pulseFactor", pulseFactor);
-            cutVolume = sharedPreferences.getInt("cutVolume", cutVolume);
-//        }else throw new Exception("Could not open connection with device ip: "+ip);
+        DraftTapLog.createDatabase(context);
+        SharedPreferences sharedPreferences = context.getSharedPreferences("sharedPrefs", Context.MODE_PRIVATE);
+        pulseFactor = sharedPreferences.getInt("pulseFactor", pulseFactor);
+        cutVolume = sharedPreferences.getInt("cutVolume", cutVolume);
     }
 
     /**
      * Use the readVolume and expected volume to recalculate pulseFactor.
      * Should be used when the measurement of volume served is wrong.
      *
-     * @param readVolume Number in ml. Volume served in calibration tests.
+     * @param measuredVolume Number in ml. Volume expected in calibration tests.
+     * @param servedVolume Number in ml. Volume served in calibration tests.
      */
-    public void calibratePulseFactor(int readVolume) {
-        print("Old factor " + pulseFactor);
-        pulseFactor = (lastVolumeRead * pulseFactor) / readVolume;
+    public void calibratePulseFactor(int measuredVolume, int servedVolume) {
+        pulseFactor = (measuredVolume * pulseFactor) / servedVolume;
         SharedPreferences sharedPreferences = context.getSharedPreferences("sharedPrefs", Context.MODE_PRIVATE);
         SharedPreferences.Editor editor = sharedPreferences.edit();
         editor.putInt("pulseFactor", pulseFactor);
         editor.apply();
-        print("New factor " + pulseFactor);
+        print("New pulse factor " + pulseFactor);
     }
-
 
     /**
      * <h2>Read volume</h2>
@@ -64,10 +62,6 @@ public class DraftTapController{
      */
     public int readVolume() {
         return equipment.getVolume();
-    }
-
-    public float remainingKegVolume() {
-        return 0.0f;
     }
 
     /**
@@ -109,18 +103,23 @@ public class DraftTapController{
      */
     public void openValve(int maxVolume) throws Exception {
 //        verifyEquip();
-        print("Serving " + equipment.isServing());
+        isServing=true;
         if (equipment.open(pulseFactor,(((int) (maxVolume - (cutVolume + (maxVolume * 0.025))))))){//isCalibrating ? maxVolume : maxVolume - cutVolume)) {
-            DraftTapLog.save(context, new LogObj(new Date(), maxVolume, pulseFactor, 0));
+            DraftTapLog.save(context, new LogObj(new Date(), maxVolume, pulseFactor, (int)(cutVolume +(maxVolume * 0.025))));
             lastVolumeRead = equipment.monitorsVolume();
-//            if (!isCalibrating) {
-//                cutVolume = lastVolumeRead - maxVolume;
-//                SharedPreferences.Editor editor = context.getSharedPreferences("sharedPrefs", Context.MODE_PRIVATE).edit();
-//                editor.putInt("cutVolume", cutVolume);
-//                editor.apply();
-//            }
-        } else throw new Exception("Failed opening Equipment");
+            isServing=false;
+        } else{
+            isServing=false;
+            throw new Exception("Failed opening Equipment");
+        }
     }
+//      if (!isCalibrating) {
+//          cutVolume = lastVolumeRead - maxVolume;
+//          SharedPreferences.Editor editor = context.getSharedPreferences("sharedPrefs", Context.MODE_PRIVATE).edit();
+//          editor.putInt("cutVolume", cutVolume);
+//          editor.apply();
+//      }
+
 
     private static void print(String text){
         Log.d("DraftController", text + "\n");
@@ -145,6 +144,23 @@ public class DraftTapController{
             editor.putLong("timeLastVerify", (new Date()).getTime());
             editor.apply();
             Equipment.request(context,ip);
+        }
+    }
+
+    /**
+     * <h2>setTimeouts</h2>
+     * Open valve so user can start serving before servingTimeout ends.
+     * The valve will close when user stop serving or maxVolume reached
+     *
+     * @param beginTimeout Number in milliseconds. The time waited before user start to serve to close the valve.
+     * @param servingTimeout Number in milliseconds. The time waited after user start to serve to close the valve.
+     */
+    public void setTimeouts(int beginTimeout, int servingTimeout)throws Exception{
+        try {
+            equipment.setTimeoutGeral(beginTimeout);
+            equipment.setTimeoutIntermediario(servingTimeout);
+        }catch (Exception e){
+            throw new Exception("Error while changing timeout values");
         }
     }
 }

@@ -131,27 +131,16 @@ class Equipment {
         return volume;
     }
 
+    public void setTimeoutGeral(int timeout) throws Exception{
+        conn.writeRegisters(TIMEOUT_GERAL, timeout);
+    }
+
+    public void setTimeoutIntermediario(int timeout) throws Exception{
+        conn.writeRegisters(TIMEOUT_INTERMEDIARIO, timeout);
+    }
+
     int getVolume() {
         return volume;
-    }
-
-    boolean isServing() {
-        if (statusBatelada == 4) return true;
-        return false;
-    }
-
-    void closeCon() {
-        conn.con.isConnected();
-        conn.closesCon();
-        conn.con.isConnected();
-    }
-
-    int getMaxVol()throws Exception{
-        try{
-            return conn.readRegister(MAX_VOL_REG);
-        }catch (Exception e){
-            throw new Exception("Could not read maximum volume register of the equipment");
-        }
     }
 
     public static String getMacFromArp(String ip) throws IOException {

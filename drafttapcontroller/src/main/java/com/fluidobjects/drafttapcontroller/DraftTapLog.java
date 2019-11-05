@@ -48,6 +48,7 @@ public class DraftTapLog extends SQLiteOpenHelper implements BaseColumns{
         db.execSQL("CREATE TABLE IF NOT EXISTS logs(" +
                 "data INTEGER PRIMARY KEY," +
                 "servedVolume INTEGER," +
+                "cutVolume INTEGER," +
                 "pulseFactor INTEGER);"
         );
     }
@@ -72,6 +73,7 @@ public class DraftTapLog extends SQLiteOpenHelper implements BaseColumns{
         ContentValues logValues = new ContentValues();
         logValues.put("data", log.date.getTime());
         logValues.put("servedVolume", log.servedVolume);
+        logValues.put("cutVolume", log.cutVolume);
         logValues.put("pulseFactor", log.pulseFactor);
         insert = db.insert(TABLE_NAME, null, logValues);
         db.close();
@@ -90,10 +92,11 @@ public class DraftTapLog extends SQLiteOpenHelper implements BaseColumns{
         if(cursor.moveToFirst()){
             do{
                 int servedVolume =cursor.getInt(cursor.getColumnIndex("servedVolume"));
+                int cutVolume =cursor.getInt(cursor.getColumnIndex("cutVolume"));
                 int pulseFactor= cursor.getInt(cursor.getColumnIndex("pulseFactor"));
                 long time=cursor.getLong(cursor.getColumnIndex("data"));
                 Date date = new Date(time);
-                LogObj log = new LogObj(date,servedVolume,pulseFactor,0);
+                LogObj log = new LogObj(date,servedVolume,pulseFactor,cutVolume);
                 logs.add(log);
             }while(!cursor.isLast()&& cursor.moveToNext());
         }

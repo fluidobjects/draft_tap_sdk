@@ -10,12 +10,12 @@ public class LogObj{
     public Date date;
     public int servedVolume;
     public int pulseFactor;
-    public int remainingKegVolume;
+    public int cutVolume;
 
-    public LogObj(Date date, int servedVolume, int pulseFactor, int remainingKegVolume){
+    public LogObj(Date date, int servedVolume, int pulseFactor,int cutVolume){
         this.date = date;
         this.servedVolume = servedVolume;
         this.pulseFactor = pulseFactor;
-        this.remainingKegVolume = remainingKegVolume;
+        this.cutVolume = cutVolume;
     }
 }

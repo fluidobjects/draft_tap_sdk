@@ -2,23 +2,16 @@ package com.fluidobjects.sdkchopeira;
 
 import android.content.Intent;
 import android.content.pm.ActivityInfo;
-import android.media.audiofx.DynamicsProcessing;
 import android.os.Bundle;
 import android.os.Handler;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.View;
 import android.widget.EditText;
-import android.widget.Toast;
+import android.widget.TextView;
 
+import static android.os.SystemClock.sleep;
 import com.fluidobjects.drafttapcontroller.DraftTapController;
-import com.fluidobjects.drafttapcontroller.DraftTapLog;
-import com.fluidobjects.drafttapcontroller.LogObj;
-
-import org.json.JSONException;
-
-import java.net.InetAddress;
-import java.net.NetworkInterface;
 
 public class MainActivity extends AppCompatActivity {
     String ip = "192.168.0.128";
@@ -58,37 +51,109 @@ public class MainActivity extends AppCompatActivity {
     }
 
     public void servir100(View v) {
-        try {
-            chopeira.openValve(100);
-        }catch (Exception e){
-            print(e.getMessage());
-        }
+        final TextView medido = findViewById(R.id.volumeMedido);
+        final Handler mHandler = new Handler();
+        new Thread(new Runnable() {
+            @Override
+            public void run() {
+                try {
+                    chopeira.openValve(100);
+                }catch (Exception e){
+                    print(e.getMessage());
+                }
+            }}).start();
+
+        new Thread(new Runnable() {
+            @Override
+            public void run() {
+                while(chopeira.isServing){
+                    sleep(200);
+                    mHandler.post(new Runnable() {
+                        @Override
+                        public void run() {
+                            int vol = chopeira.readVolume();
+                            medido.setText(String.valueOf(vol));
+                        }
+                    });
+                }
+            }
+        }).start();
     }
+
     public void servir250(View v) {
-        try {
-            chopeira.openValve(250);
-        }catch (Exception e){
-            print(e.getMessage());
-        }
+        final Handler mHandler = new Handler();
+        new Thread(new Runnable() {
+            @Override
+            public void run() {
+                try {
+                    chopeira.openValve(250);
+                }catch (Exception e){
+                    print(e.getMessage());
+                }
+            }}).start();
+
+        new Thread(new Runnable() {
+            @Override
+            public void run() {
+                while(chopeira.isServing){
+                    sleep(200);
+                    mHandler.post(new Runnable() {
+                        @Override
+                        public void run() {
+                            TextView medido = findViewById(R.id.volumeMedido);
+                            if(Integer.getInteger((String) medido.getText()) != chopeira.readVolume()){
+                                medido.setText(chopeira.readVolume());
+                            }
+                        }
+                    });
+                }
+            }
+        }).start();
     }
 
     public void servir450(View v) {
-        try {
-            chopeira.openValve(450);
-        }catch (Exception e){
-            print(e.getMessage());
-        }
+        final Handler mHandler = new Handler();
+        new Thread(new Runnable() {
+            @Override
+            public void run() {
+                try {
+                    chopeira.openValve(450);
+                }catch (Exception e){
+                    print(e.getMessage());
+                }
+            }}).start();
+
+        new Thread(new Runnable() {
+            @Override
+            public void run() {
+                while(chopeira.isServing){
+                    sleep(200);
+                    mHandler.post(new Runnable() {
+                        @Override
+                        public void run() {
+                            TextView medido = findViewById(R.id.volumeMedido);
+                            if(Integer.getInteger((String) medido.getText()) != chopeira.readVolume()){
+                                medido.setText(chopeira.readVolume());
+                            }
+                        }
+                    });
+                }
+            }
+        }).start();
     }
 
     public void calibrar(View v) {
-        EditText medido = findViewById(R.id.medido);
+        EditText servido = findViewById(R.id.servido);
+        TextView medido = findViewById(R.id.volumeMedido);
         int volumeServido = 0;
+        int volumeMedido = 0;
         try {
-            volumeServido = Integer.valueOf(medido.getText().toString());
+            volumeServido = Integer.valueOf(servido.getText().toString());
+            volumeMedido = Integer.valueOf(medido.getText().toString());
         }catch (Exception e){
         }
-        if(volumeServido != 0){
-            chopeira.calibratePulseFactor(volumeServido);
+        if(volumeServido != 0 && volumeMedido!=0){
+            chopeira.calibratePulseFactor(volumeMedido, volumeServido);
         }
     }
 
