@@ -5,6 +5,7 @@ import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
 import android.widget.EditText;
+import android.widget.LinearLayout;
 import android.widget.ScrollView;
 import android.widget.TableLayout;
 import android.widget.TableRow;
@@ -20,10 +21,6 @@ import java.util.Date;
 import java.util.List;
 
 public class Logs extends AppCompatActivity {
-
-    int initialFator = 5000;
-    String ip = "192.168.0.128";
-    DraftTapController chopeira;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -48,6 +45,7 @@ public class Logs extends AppCompatActivity {
         tl.setColumnStretchable(0, true);
         tl.setColumnStretchable(1, true);
         tl.setColumnStretchable(2, true);
+        tl.setColumnStretchable(3, true);
         for (LogObj l: logs) {
             TableRow tr = new TableRow(this);
             TextView sv = new TextView(this);
@@ -56,13 +54,14 @@ public class Logs extends AppCompatActivity {
             TextView pf = new TextView(this);
             pf.setText(String.valueOf(l.pulseFactor));
             tr.addView(pf);
+            TextView cv = new TextView(this);
+            cv.setText(String.valueOf(l.cutVolume));
+            tr.addView(cv);
             TextView dt = new TextView(this);
             String dateStr = new SimpleDateFormat("dd/MM/yyyy HH:mm").format(l.date);
             dt.setText(String.valueOf(dateStr));
             tr.addView(dt);
-            tr.setDividerPadding(20);
             tl.addView(tr);
         }
     }
-
 }

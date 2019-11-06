@@ -4,8 +4,6 @@ package com.fluidobjects.drafttapcontroller;
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.util.Log;
-
-import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Date;
 
@@ -19,7 +17,7 @@ public class DraftTapController{
     private Equipment equipment;
     private Context context;
     private int lastVolumeRead = 0;
-    private int cutVolume = 13;
+    public int cutVolume = 13;
     private  boolean enabled = true;
     public  boolean isServing = false;
 
@@ -35,7 +33,7 @@ public class DraftTapController{
         DraftTapLog.createDatabase(context);
         SharedPreferences sharedPreferences = context.getSharedPreferences("sharedPrefs", Context.MODE_PRIVATE);
         pulseFactor = sharedPreferences.getInt("pulseFactor", pulseFactor);
-        cutVolume = sharedPreferences.getInt("cutVolume", cutVolume);
+        verifyEquip();
     }
 
     /**
@@ -102,9 +100,10 @@ public class DraftTapController{
      * @param maxVolume Number in ml. The maximum volume user is allowed to serve.
      */
     public void openValve(int maxVolume) throws Exception {
-//        verifyEquip();
+        verifyEquip();
+        if(!enabled) throw new Exception("This equipment is not enabled. Contact support@fluidobjects.com.");
         isServing=true;
-        if (equipment.open(pulseFactor,(((int) (maxVolume - (cutVolume + (maxVolume * 0.025))))))){//isCalibrating ? maxVolume : maxVolume - cutVolume)) {
+        if (equipment.open(pulseFactor,(((int) (maxVolume - (cutVolume + (maxVolume * 0.025))))))){
             DraftTapLog.save(context, new LogObj(new Date(), maxVolume, pulseFactor, (int)(cutVolume +(maxVolume * 0.025))));
             lastVolumeRead = equipment.monitorsVolume();
             isServing=false;
@@ -113,13 +112,6 @@ public class DraftTapController{
             throw new Exception("Failed opening Equipment");
         }
     }
-//      if (!isCalibrating) {
-//          cutVolume = lastVolumeRead - maxVolume;
-//          SharedPreferences.Editor editor = context.getSharedPreferences("sharedPrefs", Context.MODE_PRIVATE).edit();
-//          editor.putInt("cutVolume", cutVolume);
-//          editor.apply();
-//      }
-
 
     private static void print(String text){
         Log.d("DraftController", text + "\n");
@@ -136,15 +128,19 @@ public class DraftTapController{
     }
 
     private void verifyEquip(){
-        equipIsEnabled();
-        SharedPreferences sharedPreferences = context.getSharedPreferences("sharedPrefs", Context.MODE_PRIVATE);
-        long timeLastVerify = sharedPreferences.getLong("timeLastVerify", 0);
-        if((new Date()).getTime() - timeLastVerify > 86400000 || !enabled){//mais de 1 dia
-            SharedPreferences.Editor editor=sharedPreferences.edit();
-            editor.putLong("timeLastVerify", (new Date()).getTime());
-            editor.apply();
-            Equipment.request(context,ip);
-        }
+        new Thread(new Runnable() {
+            @Override
+            public void run() {
+                equipIsEnabled();
+                SharedPreferences sharedPreferences = context.getSharedPreferences("sharedPrefs", Context.MODE_PRIVATE);
+                long timeLastVerify = sharedPreferences.getLong("timeLastVerify", 0);
+                if((new Date()).getTime() - timeLastVerify > 86400000 || !enabled){//mais de 1 dia
+                    SharedPreferences.Editor editor=sharedPreferences.edit();
+                    editor.putLong("timeLastVerify", (new Date()).getTime());
+                    editor.apply();
+                    Equipment.request(context,ip);
+                }
+            }}).start();
     }
 
     /**

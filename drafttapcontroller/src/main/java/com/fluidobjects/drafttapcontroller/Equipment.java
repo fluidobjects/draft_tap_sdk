@@ -5,18 +5,14 @@ import android.content.SharedPreferences;
 import android.os.StrictMode;
 import android.util.Log;
 
-import com.android.volley.NetworkResponse;
 import com.android.volley.Request;
 import com.android.volley.RequestQueue;
 import com.android.volley.Response;
 import com.android.volley.VolleyError;
-import com.android.volley.toolbox.JsonArrayRequest;
-import com.android.volley.toolbox.JsonObjectRequest;
 import com.android.volley.toolbox.StringRequest;
 import com.android.volley.toolbox.Volley;
 
 import org.json.JSONArray;
-import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.io.BufferedReader;
@@ -25,12 +21,9 @@ import java.io.IOException;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import static android.os.SystemClock.sleep;
-
 class Equipment {
 
     private ConectionTCP conn;
-    private int volumeProgramado;
     private int statusBatelada;
     private int volume;
 
@@ -70,7 +63,7 @@ class Equipment {
     //É chamado para abrir a batelada
     boolean open(int fator, int volProgramado) throws Exception{
         boolean isConnected = conn.con.isConnected();
-        Log.d(TAG, "Abrindo Batelada!" + "Conected?!" + isConnected);
+        Log.d(TAG, "Abrindo batelada");
         int status = 0;
         try{
             if(conn.readRegister(BATELADA_REG)==3)
@@ -89,7 +82,7 @@ class Equipment {
                 throw new Exception("Could not write registers of the equipment");
             }
             statusBatelada = 1;
-            Log.d(TAG, "abriu batelada");
+            Log.d(TAG, "Abriu batelada");
             volume = 0;
             return true;
         }
@@ -112,7 +105,7 @@ class Equipment {
             }
             if (volume < volumeLido) {
                 volume = volumeLido;
-                Log.d(TAG, "listening - Volume lido: " + volumeLido);
+                Log.d(TAG, "Volume lido: " + volumeLido);
             }
             try{
                 this.statusBatelada = conn.readRegister(BATELADA_REG);
@@ -170,8 +163,7 @@ class Equipment {
                 if(bufferedReader != null) {
                     bufferedReader.close();
                 }
-            } catch (IOException e) {
-            }
+            } catch (IOException e) {}
         }
         return hw;
     }
@@ -202,17 +194,12 @@ class Equipment {
                                     }
                                 }
                             }
-                        }catch (Exception e){
-                            Log.d("Volley Request",e.getMessage());
-                        }
+                        }catch (Exception e){}
                     }
                 }, new Response.ErrorListener() {
             @Override
-            public void onErrorResponse(VolleyError error) {
-                Log.d("Volley Request","Erro comunicacao");
-            }
+            public void onErrorResponse(VolleyError error) {}
         });
         queue.add(request);
     }
-
 }
