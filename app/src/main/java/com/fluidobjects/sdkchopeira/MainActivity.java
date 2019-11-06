@@ -2,6 +2,7 @@ package com.fluidobjects.sdkchopeira;
 
 import android.content.Intent;
 import android.content.pm.ActivityInfo;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Handler;
 import android.support.v7.app.AppCompatActivity;
@@ -49,7 +50,7 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
-    public void teste(View v){
+    public void logs(View v){
         startActivity(new Intent(this, Logs.class));
     }
 
@@ -75,6 +76,7 @@ public class MainActivity extends AppCompatActivity {
         new Thread(new Runnable() {
             @Override
             public void run() {
+                while(!chopeira.isServing){}
                 while(chopeira.isServing){
                     mHandler.post(new Runnable() {
                         @Override
@@ -96,11 +98,9 @@ public class MainActivity extends AppCompatActivity {
         }catch (Exception e){
             print(e.getMessage());
         }
-
         if(volumeProgramado != 0){
             try {
                 chopeira.openValve(volumeProgramado);
-
             }catch (Exception e){
                 print(e.getMessage());
             }

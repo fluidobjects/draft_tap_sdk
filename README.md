@@ -7,7 +7,7 @@ Provides functions for manage equipment functionality and logs.
 Add the dependency in the application build.gradle file
 
 ```bash
-implementation 'com.github.fluidobjects:draft_tap_sdk:0.5'
+implementation 'com.github.fluidobjects:draft_tap_sdk:0.6'
 ```
 
 Add it in your root build.gradle at the end of repositories:
@@ -25,7 +25,7 @@ allprojects {
 
 ```python
 /**
-* <h2>DraftTapController</h2>
+* DraftTapController
 * @param ip      String of ip address of equipment for open connection.
 * @param context Context of the running Activity.
 */
@@ -41,7 +41,7 @@ public DraftTapController(Context context, String ip){}
 public void calibratePulseFactor(int measuredVolume, int servedVolume) {}
 
 /**
-* <h2>Read volume</h2>
+* Read volume
 * Read the served volume
 *
 * @return false in case of error, true otherwise
@@ -72,7 +72,7 @@ public static ArrayList<LogObj> getLogs(Context context, Date startDate, Date en
 
 
 /**
-* <h2>Open Valve</h2>
+* Open Valve
 * Open valve so user can start serving before servingTimeout ends.
 * The valve will close when user stop serving or maxVolume reached
 *
@@ -82,7 +82,7 @@ public void openValve(int maxVolume) throws Exception {}
 
 
 /**
-* <h2>setTimeouts</h2>
+* SetTimeouts
 * Open valve so user can start serving before servingTimeout ends.
 * The valve will close when user stop serving or maxVolume reached
 *
@@ -92,7 +92,7 @@ public void openValve(int maxVolume) throws Exception {}
 public void setTimeouts(int beginTimeout, int servingTimeout)throws Exception{}
 
 /**
-* <h2>Equipment log object</h2>
+* Equipment log object
 * Object saved in database
 */
 class LogObj{

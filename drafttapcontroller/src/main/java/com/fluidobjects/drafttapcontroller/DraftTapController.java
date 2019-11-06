@@ -122,25 +122,22 @@ public class DraftTapController{
             String mac = equipment.getMacFromArp(ip);
             SharedPreferences sharedPreferences = context.getSharedPreferences("sharedPrefs", Context.MODE_PRIVATE);
             String dis = sharedPreferences.getString("disabled", "");
-            if(dis.contains(mac)) enabled = false;
-            enabled = true;
+            if(dis.contains(mac)) {
+                enabled = false;
+            }else enabled = true;
         }catch (Exception e){enabled = true; }
     }
 
     private void verifyEquip(){
-        new Thread(new Runnable() {
-            @Override
-            public void run() {
-                equipIsEnabled();
-                SharedPreferences sharedPreferences = context.getSharedPreferences("sharedPrefs", Context.MODE_PRIVATE);
-                long timeLastVerify = sharedPreferences.getLong("timeLastVerify", 0);
-                if((new Date()).getTime() - timeLastVerify > 86400000 || !enabled){//mais de 1 dia
-                    SharedPreferences.Editor editor=sharedPreferences.edit();
-                    editor.putLong("timeLastVerify", (new Date()).getTime());
-                    editor.apply();
-                    Equipment.request(context,ip);
-                }
-            }}).start();
+        equipIsEnabled();
+        SharedPreferences sharedPreferences = context.getSharedPreferences("sharedPrefs", Context.MODE_PRIVATE);
+        long timeLastVerify = sharedPreferences.getLong("timeLastVerify", 0);
+        if((new Date()).getTime() - timeLastVerify > 86400000 || !enabled){//mais de 1 dia
+            SharedPreferences.Editor editor=sharedPreferences.edit();
+            editor.putLong("timeLastVerify", (new Date()).getTime());
+            editor.apply();
+            Equipment.request(context,ip);
+        }
     }
 
     /**

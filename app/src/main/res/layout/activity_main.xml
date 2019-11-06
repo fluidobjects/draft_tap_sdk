@@ -82,7 +82,7 @@
             android:id="@+id/servir"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:onClick="servir"
+            android:onClick="servirCustom"
             android:text="Servir" />
     </LinearLayout>
 
@@ -91,7 +91,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginBottom="60dp"
-        android:onClick="teste"
+        android:onClick="logs"
         android:text="Logs"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
