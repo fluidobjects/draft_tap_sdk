@@ -88,22 +88,22 @@ public class MainActivity extends AppCompatActivity {
         }).start();
     }
 
-//    public void servirCustom(View v) {
-//        EditText vol = findViewById(R.id.volume);
-//        int volumeProgramado=0;
-//        try {
-//            volumeProgramado = Integer.valueOf(vol.getText().toString());
-//        }catch (Exception e){
-//            print(e.getMessage());
-//        }
-//
-//        if(volumeProgramado != 0){
-//            try {
-//                chopeira.openValve(volumeProgramado);
-//
-//            }catch (Exception e){
-//                print(e.getMessage());
-//            }
-//        }
-//    }
+    public void servirCustom(View v) {
+        EditText vol = findViewById(R.id.volume);
+        int volumeProgramado=0;
+        try {
+            volumeProgramado = Integer.valueOf(vol.getText().toString());
+        }catch (Exception e){
+            print(e.getMessage());
+        }
+
+        if(volumeProgramado != 0){
+            try {
+                chopeira.openValve(volumeProgramado);
+
+            }catch (Exception e){
+                print(e.getMessage());
+            }
+        }
+    }
 }
